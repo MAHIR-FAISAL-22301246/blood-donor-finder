@@ -7,5 +7,5 @@
 - [x] Database Connection (MongoDB)
 
 ## Sprint 1: Admin Basics
-- [ ] Feature 10: Admin view of all registered donors
+- [x] Feature 10: Admin view of all registered donors
 - [ ] Feature 11: Verify donor information

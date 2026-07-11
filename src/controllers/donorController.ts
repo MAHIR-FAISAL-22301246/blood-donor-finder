@@ -11,7 +11,12 @@ export async function getDonors(req: NextRequest) {
   const district = searchParams.get('district');
   const division = searchParams.get('division');
 
-  const query: Record<string, unknown> = { role: 'donor', isAvailable: true };
+  const all = searchParams.get('all');
+
+  const query: Record<string, unknown> = { role: 'donor' };
+  if (all !== 'true') {
+    query.isAvailable = true;
+  }
   if (bloodGroup) query.bloodGroup = bloodGroup;
   if (district) query['location.district'] = district;
   if (division) query['location.division'] = division;
@@ -51,7 +56,7 @@ export async function verifyDonor(id: string) {
     const donor = await User.findByIdAndUpdate(
       id,
       { isVerified: true },
-      { new: true }
+      { returnDocument: 'after' }
     ).select('-password');
     if (!donor) {
       return NextResponse.json({ success: false, message: 'Donor not found' }, { status: 404 });
@@ -72,7 +77,7 @@ export async function toggleAvailability(id: string, isAvailable: boolean) {
     const donor = await User.findByIdAndUpdate(
       id,
       { isAvailable },
-      { new: true }
+      { returnDocument: 'after' }
     ).select('-password');
     return NextResponse.json({ success: true, data: donor }, { status: 200 });
   } catch (error) {
