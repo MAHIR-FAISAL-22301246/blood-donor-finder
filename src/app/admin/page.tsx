@@ -89,29 +89,27 @@ export default function AdminDashboard() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-red-700 via-rose-600 to-red-800 text-white pb-28 pt-14 relative overflow-hidden">
-        {/* Decorative subtle overlay */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+      <div className="bg-[#1e293b] text-white pb-24 pt-12 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
               <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-                <ShieldCheck size={36} className="text-red-200" />
+                <ShieldCheck size={36} className="text-blue-400" />
                 Admin Dashboard
               </h1>
-              <p className="text-red-100 text-lg max-w-xl">
+              <p className="text-slate-300 text-lg max-w-xl">
                 Manage your donor network, verify identities, and ensure the safety of the blood donation community.
               </p>
             </div>
             
             {/* Stats Cards */}
             <div className="flex gap-4">
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 min-w-[120px]">
-                <p className="text-red-100 text-sm font-medium mb-1">Total Donors</p>
+              <div className="bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10 min-w-[120px]">
+                <p className="text-slate-300 text-sm font-medium mb-1">Total Donors</p>
                 <p className="text-3xl font-bold">{donors.length}</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 min-w-[120px]">
-                <p className="text-red-100 text-sm font-medium mb-1">Unverified</p>
+              <div className="bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10 min-w-[120px]">
+                <p className="text-slate-300 text-sm font-medium mb-1">Unverified</p>
                 <p className="text-3xl font-bold">{unverifiedCount}</p>
               </div>
             </div>
@@ -119,7 +117,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <main className="flex-grow container mx-auto px-4 -mt-10 pb-12">
+      <main className="flex-grow container mx-auto px-4 py-8 pb-12">
         
         {/* Controls Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
