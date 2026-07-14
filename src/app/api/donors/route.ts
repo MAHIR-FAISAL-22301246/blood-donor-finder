@@ -10,11 +10,25 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const bloodGroup = searchParams.get('bloodGroup');
+    const division = searchParams.get('division');
+    const district = searchParams.get('district');
+    const availability = searchParams.get('availability');
 
-    const query: Record<string, unknown> = { role: 'donor', isAvailable: true };
+    const query: Record<string, unknown> = { role: 'donor' };
 
     if (bloodGroup) {
       query.bloodGroup = bloodGroup;
+    }
+    if (division) {
+      query['location.division'] = division;
+    }
+    if (district) {
+      query['location.district'] = district;
+    }
+    if (availability === 'available') {
+      query.isAvailable = true;
+    } else if (availability === 'unavailable') {
+      query.isAvailable = false;
     }
 
     const donors = await User.find(query).select('-password');

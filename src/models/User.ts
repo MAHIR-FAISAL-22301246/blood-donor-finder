@@ -15,6 +15,13 @@ export interface IUser extends Document {
   isAvailable: boolean;
   lastDonationDate?: Date;
   isVerified: boolean;
+  donationHistory: {
+    date: Date;
+    hospital: string;
+    division: string;
+    district: string;
+    area?: string;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +46,15 @@ const UserSchema: Schema<IUser> = new Schema(
     isAvailable: { type: Boolean, default: true },
     lastDonationDate: { type: Date },
     isVerified: { type: Boolean, default: false },
+    donationHistory: [
+      {
+        date: { type: Date, required: true },
+        hospital: { type: String, default: '' },
+        division: { type: String, default: '' },
+        district: { type: String, default: '' },
+        area: { type: String, default: '' },
+      },
+    ],
   },
   { timestamps: true }
 );
