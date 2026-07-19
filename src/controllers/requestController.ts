@@ -2,22 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import BloodRequest from '@/models/BloodRequest';
 import dbConnect from '@/lib/db';
 
-// GET /api/requests — Get all blood requests
+// GET /api/requests — Get all blood requests (admin: supports all statuses)
 export async function getBloodRequests(req: NextRequest) {
   await dbConnect();
 
   const { searchParams } = new URL(req.url);
   const bloodGroup = searchParams.get('bloodGroup');
-  const status = searchParams.get('status') || 'open';
+  const status = searchParams.get('status');
   const district = searchParams.get('district');
 
-  const query: Record<string, unknown> = { status };
+  // If status is 'all' or not provided for admin view, skip status filter
+  const query: Record<string, unknown> = {};
+  if (status && status !== 'all') query.status = status;
+  else if (!status) query.status = 'open'; // default public view shows only open
   if (bloodGroup) query.bloodGroup = bloodGroup;
   if (district) query['location.district'] = district;
 
   try {
     const requests = await BloodRequest.find(query)
-      .populate('requester', 'name email phone')
       .sort({ createdAt: -1 });
     return NextResponse.json({ success: true, data: requests }, { status: 200 });
   } catch (error) {
@@ -33,7 +35,28 @@ export async function createBloodRequest(req: NextRequest) {
   await dbConnect();
   try {
     const body = await req.json();
-    const request = await BloodRequest.create(body);
+    const { patientName, bloodGroup, unitsNeeded, hospital, location, requiredDate, contactPhone } = body;
+
+    if (!patientName || !bloodGroup || !unitsNeeded || !hospital || !location?.division || !location?.district || !requiredDate || !contactPhone) {
+      return NextResponse.json(
+        { success: false, message: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Placeholder requester until auth is implemented — set BEFORE spread so body cannot override
+    const PLACEHOLDER_REQUESTER_ID = '000000000000000000000000';
+    const request = await BloodRequest.create({
+      requester: PLACEHOLDER_REQUESTER_ID,
+      patientName,
+      bloodGroup,
+      unitsNeeded: Number(unitsNeeded),
+      hospital,
+      location,
+      requiredDate,
+      contactPhone,
+      description: body.description,
+    });
     return NextResponse.json({ success: true, data: request }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
@@ -53,7 +76,7 @@ export async function updateRequestStatus(
     const request = await BloodRequest.findByIdAndUpdate(
       id,
       { status },
-      { new: true }
+      { returnDocument: 'after' }
     );
     if (!request) {
       return NextResponse.json({ success: false, message: 'Request not found' }, { status: 404 });

@@ -9,3 +9,8 @@
 ## Sprint 1: Admin Basics
 - [x] Feature 10: Admin view of all registered donors
 - [x] Feature 11: Verify donor information
+
+## Sprint 2: Requests & Notifications
+- [x] Feature 12: Manage blood requests (public form + admin management)
+- [ ] Feature 17: Confirmation system
+- [ ] Feature 14: Real-time notifications

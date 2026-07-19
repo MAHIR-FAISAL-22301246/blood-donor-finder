@@ -6,7 +6,8 @@ import { IUserDTO } from '@/types';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Toaster, toast } from 'react-hot-toast';
-import { Search, Filter, ShieldCheck, Users } from 'lucide-react';
+import { Search, Filter, ShieldCheck, Users, ClipboardList } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AdminDashboard() {
   const [donors, setDonors] = useState<IUserDTO[]>([]);
@@ -112,6 +113,13 @@ export default function AdminDashboard() {
                 <p className="text-slate-300 text-sm font-medium mb-1">Unverified</p>
                 <p className="text-3xl font-bold">{unverifiedCount}</p>
               </div>
+              <Link
+                href="/admin/requests"
+                className="bg-white/5 hover:bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 min-w-[120px] transition-colors flex flex-col justify-between"
+              >
+                <p className="text-slate-300 text-sm font-medium mb-1 flex items-center gap-1"><ClipboardList size={14} /> Requests</p>
+                <p className="text-sm font-semibold text-blue-300">Manage →</p>
+              </Link>
             </div>
           </div>
         </div>
