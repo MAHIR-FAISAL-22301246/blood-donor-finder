@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import User from '@/models/User';
+import User, { IUser } from '@/models/User';
 import dbConnect from '@/lib/db';
+import type { BloodGroup, CompatibleDonorGroup } from '@/types';
+
+const COMPATIBLE_DONORS: Record<BloodGroup, BloodGroup[]> = {
+  'O-': [],
+  'O+': ['O-'],
+  'A-': ['O-'],
+  'A+': ['A+', 'A-', 'O+', 'O-'],
+  'B-': ['O-'],
+  'B+': ['B+', 'B-', 'O+', 'O-'],
+  'AB-': ['AB-', 'A-', 'B-', 'O-'],
+  'AB+': ['AB+', 'AB-', 'A+', 'A-', 'B+', 'B-', 'O+', 'O-'],
+};
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +44,53 @@ export async function GET(request: NextRequest) {
     }
 
     const donors = await User.find(query).select('-password');
-    return NextResponse.json({ success: true, data: donors }, { status: 200 });
+
+    let compatibleDonors: CompatibleDonorGroup[] = [];
+    const shouldShowCompatibility =
+      bloodGroup &&
+      (availability !== 'unavailable') &&
+      (donors.length === 0 || !donors.some((d) => d.isAvailable));
+
+    if (shouldShowCompatibility) {
+      const compatibleGroups = COMPATIBLE_DONORS[bloodGroup as BloodGroup]?.filter(
+        (g) => g !== bloodGroup
+      ) ?? [];
+
+      if (compatibleGroups.length > 0) {
+        const compatibleQuery: Record<string, unknown> = { role: 'donor', isAvailable: true };
+        if (division) {
+          compatibleQuery['location.division'] = division;
+        }
+        if (district) {
+          compatibleQuery['location.district'] = district;
+        }
+        compatibleQuery.bloodGroup = { $in: compatibleGroups };
+
+        const compatibleResults = await User.find(compatibleQuery).select('-password');
+
+        const grouped = new Map<BloodGroup, IUser[]>();
+        for (const donor of compatibleResults) {
+          const group = donor.bloodGroup as BloodGroup;
+          if (!grouped.has(group)) {
+            grouped.set(group, []);
+          }
+          grouped.get(group)!.push(donor);
+        }
+
+        compatibleDonors = Array.from(grouped.entries())
+          .map(([group, donors]) => ({
+            bloodGroup: group,
+            donors,
+            count: donors.length,
+          }))
+          .sort((a, b) => b.count - a.count);
+      }
+    }
+
+    return NextResponse.json(
+      { success: true, data: donors, compatibleDonors },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error in GET /api/donors:', error);
     return NextResponse.json(

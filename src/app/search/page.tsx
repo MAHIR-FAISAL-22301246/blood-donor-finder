@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import type { CompatibleDonorGroup } from '@/types';
 
 interface DonationRecord {
   date: string;
@@ -62,6 +63,7 @@ export default function SearchPage() {
   const [availability, setAvailability] = useState<AvailabilityKey>('');
   const [sortBy, setSortBy] = useState<SortKey>('default');
   const [donors, setDonors] = useState<Donor[]>([]);
+  const [compatibleDonors, setCompatibleDonors] = useState<CompatibleDonorGroup[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,6 +81,7 @@ export default function SearchPage() {
       setAvailability(saved.availability ?? '');
       setSortBy(saved.sortBy ?? 'default');
       setDonors(saved.donors ?? []);
+      setCompatibleDonors(saved.compatibleDonors ?? []);
       setHasSearched(Boolean(saved.hasSearched));
     } catch {
       /* ignore corrupted state */
@@ -99,15 +102,17 @@ export default function SearchPage() {
       availability,
       sortBy,
       donors,
+      compatibleDonors,
       hasSearched,
     };
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-  }, [selectedBloodGroup, selectedDivision, district, availability, sortBy, donors, hasSearched]);
+  }, [selectedBloodGroup, selectedDivision, district, availability, sortBy, donors, compatibleDonors, hasSearched]);
 
   const handleSearch = async () => {
     setLoading(true);
     setError(null);
     setDonors([]);
+    setCompatibleDonors([]);
 
     try {
       const params = new URLSearchParams();
@@ -128,7 +133,8 @@ export default function SearchPage() {
         throw new Error(json.message || 'Failed to fetch donors');
       }
 
-      setDonors(json.data);
+      setDonors(json.data ?? []);
+      setCompatibleDonors(json.compatibleDonors ?? []);
       setHasSearched(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -144,6 +150,7 @@ export default function SearchPage() {
     setAvailability('');
     setSortBy('default');
     setDonors([]);
+    setCompatibleDonors([]);
     setHasSearched(false);
     setError(null);
     sessionStorage.removeItem(STORAGE_KEY);
@@ -356,7 +363,110 @@ export default function SearchPage() {
           </p>
         )}
 
-        {sortedDonors.length > 0 && (
+        {compatibleDonors.length > 0 && (
+          <div className="mb-8">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-6">
+              <h2 className="text-lg font-semibold text-amber-900 mb-2">
+                No available {selectedBloodGroup} donors found
+              </h2>
+              <p className="text-sm text-amber-700">
+                People with <span className="font-semibold">{selectedBloodGroup}</span> blood can safely receive from donors with these compatible blood groups:
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              {compatibleDonors.map((group) => (
+                <div
+                  key={group.bloodGroup}
+                  className="bg-white rounded-xl shadow-sm border border-slate-200 p-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-slate-800">
+                      {group.bloodGroup === selectedBloodGroup
+                        ? `${group.bloodGroup} donors (exact match)`
+                        : `${group.bloodGroup} donors (compatible)`}
+                    </h3>
+                    <span className="px-3 py-1.5 bg-amber-100 text-amber-700 text-sm font-semibold rounded-full">
+                      {group.count} donor{group.count !== 1 && 's'} available
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {group.donors.map((donor) => (
+                      <div
+                        key={donor._id.toString()}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => router.push(`/donors/${donor._id.toString()}`)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            router.push(`/donors/${donor._id.toString()}`);
+                          }
+                        }}
+                        className="block cursor-pointer bg-slate-50 rounded-lg border border-slate-200 p-4 hover:shadow-md hover:border-amber-300 transition-all"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-base font-semibold text-slate-800">
+                            {donor.name}
+                          </h4>
+                          <span className="px-3 py-1 bg-amber-50 text-amber-700 text-sm font-semibold rounded-full border border-amber-200">
+                            {donor.bloodGroup}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2 text-sm text-slate-600">
+                          <p className="flex items-center gap-2">
+                            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span className="font-medium text-slate-700">Phone:</span>
+                            <a
+                              href={`tel:${donor.phone}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-slate-900 hover:text-amber-600 underline underline-offset-2 transition-colors"
+                            >
+                              {donor.phone}
+                            </a>
+                          </p>
+                          <p className="flex items-start gap-2">
+                            <svg className="w-4 h-4 text-slate-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243A8 8 0 1117.657 16.657z" />
+                              <circle cx={12} cy={11} r={1.5} fill="currentColor" />
+                            </svg>
+                            <span>
+                              <span className="font-medium text-slate-700">Location:</span>{' '}
+                              {donor.location.area}, {donor.location.district},{' '}
+                              {donor.location.division}
+                            </span>
+                          </p>
+                          <div className="flex items-center gap-2 pt-1">
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                donor.isAvailable
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-gray-100 text-gray-500'
+                              }`}
+                            >
+                              {donor.isAvailable ? 'Available' : 'Unavailable'}
+                            </span>
+                            {donor.isVerified && (
+                              <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
+                                ✓ Verified
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {sortedDonors.length > 0 && !compatibleDonors.length && (
           <>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <p className="text-sm font-medium text-slate-600">

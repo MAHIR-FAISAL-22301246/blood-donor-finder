@@ -1,4 +1,4 @@
-// Shared TypeScript types for the Blood Donor Finder app
+import type { IUser } from '@/models/User';
 
 export type BloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
 
@@ -46,4 +46,10 @@ export interface ApiResponse<T> {
   data?: T;
   message?: string;
   error?: unknown;
+}
+
+export interface CompatibleDonorGroup {
+  bloodGroup: BloodGroup;
+  donors: IUser[];
+  count: number;
 }
