@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Profile Management Elements
   const manageDonorId = document.getElementById('manage-donor-id');
   const manageFetchBtn = document.getElementById('manage-fetch-btn');
-  const editProfileCard = document.getElementById('edit-profile-card');
+  const profileManagerContainer = document.getElementById('profile-manager-container');
   const editForm = document.getElementById('edit-form');
   const editDbId = document.getElementById('edit-db-id');
   const editName = document.getElementById('edit-name');
@@ -40,6 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const editUpazila = document.getElementById('edit-upazila');
   const editCancelBtn = document.getElementById('edit-cancel-btn');
   const editDeleteBtn = document.getElementById('edit-delete-btn');
+
+  // Quick Status & Accordion Elements
+  const quickStatusBanner = document.getElementById('quick-status-banner');
+  const quickStatusToggle = document.getElementById('quick-status-toggle');
+  const quickStatusSaveBtn = document.getElementById('quick-status-save-btn');
+  const labelStatusUnavailable = document.getElementById('label-status-unavailable');
+  const labelStatusAvailable = document.getElementById('label-status-available');
+  const accordionToggle = document.getElementById('full-profile-accordion-toggle');
+  const accordionContent = document.getElementById('full-profile-accordion-content');
+  const accordionArrow = document.getElementById('accordion-arrow');
 
   // Toast Container
   const toastContainer = document.getElementById('toast-container');
@@ -317,7 +327,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    editProfileCard.classList.add('hidden');
+    profileManagerContainer.classList.add('hidden');
+    // Reset accordion to collapsed state
+    accordionContent.classList.add('collapsed');
+    accordionToggle.classList.remove('active');
 
     try {
       const response = await fetch(`/api/donors/${idVal}`);
@@ -335,17 +348,41 @@ document.addEventListener('DOMContentLoaded', () => {
         editDistrict.value = donor.district;
         editUpazila.value = donor.upazilaOrArea;
 
-        editProfileCard.classList.remove('hidden');
+        // Sync and format the Quick Status elements
+        syncQuickStatusUI(donor.status);
+
+        profileManagerContainer.classList.remove('hidden');
         showToast('Profile loaded successfully.', 'success');
         
-        // Smooth scroll to edit card
-        editProfileCard.scrollIntoView({ behavior: 'smooth' });
+        // Smooth scroll to manager container
+        profileManagerContainer.scrollIntoView({ behavior: 'smooth' });
       } else {
         showToast(result.error || 'Donor profile not found.', 'error');
       }
     } catch (error) {
       console.error(error);
       showToast('Network error while searching profile.', 'error');
+    }
+  }
+
+  // Helper to sync Quick Status UI elements
+  function syncQuickStatusUI(status) {
+    const isAvailable = status === 'Available';
+    
+    // Checkbox state
+    quickStatusToggle.checked = isAvailable;
+    
+    // Status text banner
+    quickStatusBanner.textContent = status;
+    quickStatusBanner.className = 'status-banner ' + status.toLowerCase();
+    
+    // Highlight labels
+    if (isAvailable) {
+      labelStatusAvailable.classList.add('active');
+      labelStatusUnavailable.classList.remove('active');
+    } else {
+      labelStatusUnavailable.classList.add('active');
+      labelStatusAvailable.classList.remove('active');
     }
   }
 
@@ -403,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response.ok && result.success) {
         showToast('Profile updated successfully!', 'success');
-        editProfileCard.classList.add('hidden');
+        profileManagerContainer.classList.add('hidden');
         manageDonorId.value = '';
         switchTab('search');
       } else {
@@ -418,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Cancel edit
   editCancelBtn.addEventListener('click', () => {
-    editProfileCard.classList.add('hidden');
+    profileManagerContainer.classList.add('hidden');
     manageDonorId.value = '';
     showToast('Edit cancelled.', 'info');
   });
@@ -438,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response.ok && result.success) {
         showToast('Profile deleted successfully.', 'success');
-        editProfileCard.classList.add('hidden');
+        profileManagerContainer.classList.add('hidden');
         manageDonorId.value = '';
         switchTab('search');
       } else {
@@ -447,6 +484,85 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
       console.error(error);
       showToast('Network error during deletion.', 'error');
+    }
+  });
+
+  // --- Interactive UI Listeners (Quick status toggle and accordion toggle) ---
+
+  // 1. Accordion Toggle
+  accordionToggle.addEventListener('click', () => {
+    const isCollapsed = accordionContent.classList.contains('collapsed');
+    
+    if (isCollapsed) {
+      accordionContent.classList.remove('collapsed');
+      accordionToggle.classList.add('active');
+    } else {
+      accordionContent.classList.add('collapsed');
+      accordionToggle.classList.remove('active');
+    }
+  });
+
+  // 2. Interactive quick toggle checkbox reactivity (instant visual state feedback before save)
+  quickStatusToggle.addEventListener('change', () => {
+    const isChecked = quickStatusToggle.checked;
+    const tempStatus = isChecked ? 'Available' : 'Unavailable';
+    
+    // Instantly reflect state
+    quickStatusBanner.textContent = tempStatus;
+    quickStatusBanner.className = 'status-banner ' + tempStatus.toLowerCase();
+    
+    if (isChecked) {
+      labelStatusAvailable.classList.add('active');
+      labelStatusUnavailable.classList.remove('active');
+    } else {
+      labelStatusUnavailable.classList.add('active');
+      labelStatusAvailable.classList.remove('active');
+    }
+
+    // Keep the hidden/detailed form select status synced as well
+    editStatus.value = tempStatus;
+  });
+
+  // 3. Click labels to toggle switch
+  labelStatusUnavailable.addEventListener('click', () => {
+    if (quickStatusToggle.checked) {
+      quickStatusToggle.checked = false;
+      quickStatusToggle.dispatchEvent(new Event('change'));
+    }
+  });
+  labelStatusAvailable.addEventListener('click', () => {
+    if (!quickStatusToggle.checked) {
+      quickStatusToggle.checked = true;
+      quickStatusToggle.dispatchEvent(new Event('change'));
+    }
+  });
+
+  // 4. API call: Update status ONLY
+  quickStatusSaveBtn.addEventListener('click', async () => {
+    const donorId = editDbId.value;
+    const statusVal = quickStatusToggle.checked ? 'Available' : 'Unavailable';
+
+    try {
+      const response = await fetch(`/api/donors/${donorId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: statusVal })
+      });
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        showToast('Availability status updated successfully!', 'success');
+        profileManagerContainer.classList.add('hidden');
+        manageDonorId.value = '';
+        
+        // Switch tab to results to instantly see changes
+        switchTab('search');
+      } else {
+        showToast(result.error || 'Failed to update availability status.', 'error');
+      }
+    } catch (error) {
+      console.error(error);
+      showToast('Network error while updating availability.', 'error');
     }
   });
 

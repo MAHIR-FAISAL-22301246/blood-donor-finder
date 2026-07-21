@@ -617,6 +617,235 @@ body {
   }
 }
 
+
+/* Quick Status Toggle Card Styles */
+.profile-manager-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.5s ease;
+}
+
+.quick-status-display {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0;
+}
+
+.status-banner {
+  padding: 14px 28px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition: var(--transition);
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+.status-banner.available {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.status-banner.unavailable {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 4px 25px rgba(255, 255, 255, 0.05);
+  }
+}
+
+.quick-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 10px 0 24px 0;
+}
+
+.toggle-status-label {
+  font-size: 1.05rem;
+  font-weight: 600;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.toggle-status-label.status-unavailable {
+  color: var(--text-muted);
+}
+
+.toggle-status-label.status-unavailable.active {
+  color: var(--danger);
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+.toggle-status-label.status-available {
+  color: var(--text-muted);
+}
+
+.toggle-status-label.status-available.active {
+  color: var(--success);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+/* Premium Custom Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 64px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--card-border);
+  transition: .4s;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text-muted);
+  transition: .4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+input:checked + .slider {
+  background-color: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--success);
+}
+
+input:checked + .slider:before {
+  transform: translateX(30px);
+  background-color: var(--success);
+  filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.6));
+}
+
+/* Handle state when NOT checked (Unavailable) */
+input:not(:checked) + .slider:before {
+  background-color: var(--danger);
+  filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6));
+}
+
+input:not(:checked) + .slider {
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.quick-status-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+#quick-status-save-btn {
+  padding: 12px 36px;
+  font-size: 1rem;
+}
+
+/* Accordion Styles for Collapsible Details */
+.accordion-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.accordion-header {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  transition: var(--transition);
+}
+
+.accordion-header:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.accordion-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.accordion-icon {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-header.active .accordion-icon {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
+.accordion-content {
+  padding: 0 24px 24px 24px;
+  max-height: 2000px;
+  opacity: 1;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.4s ease, padding 0.4s ease;
+}
+
+.accordion-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .span-half, .span-third {
