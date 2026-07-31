@@ -86,6 +86,29 @@ export default function AdminRequestsPage() {
     }
   };
 
+  const handleConfirmDonation = async (requestId: string, donorId: string) => {
+    setUpdating(`${requestId}-${donorId}`);
+    try {
+      const res = await fetch(`/api/requests/${requestId}/confirm`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ donorId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Donation confirmed successfully!');
+        // Re-fetch to get the updated populated arrays easily
+        fetchRequests(activeTab);
+      } else {
+        toast.error(data.message || 'Failed to confirm');
+      }
+    } catch {
+      toast.error('Network error');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   const filtered = requests.filter(r =>
     r.patientName.toLowerCase().includes(search.toLowerCase()) ||
     r.bloodGroup.toLowerCase().includes(search.toLowerCase()) ||
@@ -184,11 +207,11 @@ export default function AdminRequestsPage() {
                   <tr className="text-gray-500">
                     <th className="px-6 py-4 font-semibold">Patient</th>
                     <th className="px-6 py-4 font-semibold">Blood Group</th>
-                    <th className="px-6 py-4 font-semibold">Units</th>
+                    <th className="px-6 py-4 font-semibold">Units (Needs/Confirmed)</th>
                     <th className="px-6 py-4 font-semibold">Hospital</th>
-                    <th className="px-6 py-4 font-semibold">Location</th>
                     <th className="px-6 py-4 font-semibold">Required By</th>
                     <th className="px-6 py-4 font-semibold">Status</th>
+                    <th className="px-6 py-4 font-semibold">Committed Donors</th>
                     <th className="px-6 py-4 font-semibold">Actions</th>
                   </tr>
                 </thead>
@@ -201,12 +224,14 @@ export default function AdminRequestsPage() {
                           {request.bloodGroup}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-600">{request.unitsNeeded} unit(s)</td>
-                      <td className="px-6 py-4 text-gray-600 max-w-[160px] truncate">{request.hospital}</td>
-                      <td className="px-6 py-4 text-gray-500 text-xs">
-                        {request.location?.district}, {request.location?.division}
+                      <td className="px-6 py-4 text-gray-600">
+                        {request.confirmedDonors?.length || 0} / {request.unitsNeeded}
                       </td>
-                      <td className="px-6 py-4 text-gray-500 text-xs">
+                      <td className="px-6 py-4 text-gray-600 max-w-[160px] truncate">
+                        {request.hospital}<br/>
+                        <span className="text-xs text-gray-400">{request.location?.district}</span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 text-xs whitespace-nowrap">
                         {new Date(request.requiredDate).toLocaleDateString('en-GB', {
                           day: '2-digit', month: 'short', year: 'numeric'
                         })}
@@ -215,21 +240,42 @@ export default function AdminRequestsPage() {
                         {statusBadge(request.status)}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex gap-2">
+                        {request.committedDonors && request.committedDonors.length > 0 ? (
+                          <div className="flex flex-col gap-2">
+                            {request.committedDonors.map((donor: any) => (
+                              <div key={donor._id} className="bg-blue-50 border border-blue-100 rounded p-2 text-xs">
+                                <p className="font-semibold text-blue-800">{donor.name}</p>
+                                <p className="text-blue-600">{donor.phone}</p>
+                                <button
+                                  onClick={() => handleConfirmDonation(request._id, donor._id)}
+                                  disabled={updating === `${request._id}-${donor._id}`}
+                                  className="mt-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded transition-colors disabled:opacity-50 w-full"
+                                >
+                                  Confirm Donation
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-xs italic">None yet</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-2">
                           {request.status !== 'fulfilled' && (
                             <button
                               onClick={() => handleStatusChange(request._id, 'fulfilled')}
                               disabled={updating === request._id}
-                              className="text-green-600 border border-green-200 hover:bg-green-50 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
+                              className="text-green-600 border border-green-200 hover:bg-green-50 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50 text-left"
                             >
-                              ✓ Fulfill
+                              ✓ Fulfill (Manual)
                             </button>
                           )}
                           {request.status === 'open' && (
                             <button
                               onClick={() => handleStatusChange(request._id, 'cancelled')}
                               disabled={updating === request._id}
-                              className="text-gray-500 border border-gray-200 hover:bg-gray-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
+                              className="text-gray-500 border border-gray-200 hover:bg-gray-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50 text-left"
                             >
                               ✕ Cancel
                             </button>
@@ -238,7 +284,7 @@ export default function AdminRequestsPage() {
                             <button
                               onClick={() => handleStatusChange(request._id, 'open')}
                               disabled={updating === request._id}
-                              className="text-blue-600 border border-blue-200 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
+                              className="text-blue-600 border border-blue-200 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50 text-left"
                             >
                               ↩ Reopen
                             </button>

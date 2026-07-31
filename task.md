@@ -12,5 +12,9 @@
 
 ## Sprint 2: Requests & Notifications
 - [x] Feature 12: Manage blood requests (public form + admin management)
-- [ ] Feature 17: Confirmation system
+- [x] Feature 17: Confirmation system
+  - [x] Update BloodRequest model & types
+  - [x] Create commit/confirm controllers & API routes
+  - [x] Create public request board for donors
+  - [x] Update admin requests page to manage confirmations
 - [ ] Feature 14: Real-time notifications

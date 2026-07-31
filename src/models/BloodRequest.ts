@@ -15,6 +15,8 @@ export interface IBloodRequest extends Document {
   status: 'open' | 'fulfilled' | 'cancelled';
   contactPhone: string;
   description?: string;
+  committedDonors: mongoose.Types.ObjectId[];
+  confirmedDonors: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +41,8 @@ const BloodRequestSchema: Schema<IBloodRequest> = new Schema(
     status: { type: String, enum: ['open', 'fulfilled', 'cancelled'], default: 'open' },
     contactPhone: { type: String, required: true },
     description: { type: String },
+    committedDonors: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    confirmedDonors: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );
