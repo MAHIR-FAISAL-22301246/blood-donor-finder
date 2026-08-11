@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+type RequestStatus = "open" | "fulfilled" | "cancelled";
+
 type Patient = {
   _id: string;
   patientName: string;
@@ -15,12 +17,13 @@ type Patient = {
   };
   contactPhone: string;
   description: string;
-  status: string;
+  status: RequestStatus;
 };
 
 export default function PatientDetails() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/requests")
@@ -29,15 +32,75 @@ export default function PatientDetails() {
         if (data.success) {
           setPatients(data.data);
         }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch patients:", error);
       });
   }, []);
+
+  const updateStatus = async (
+    id: string,
+    status: RequestStatus
+  ) => {
+    try {
+      setUpdatingId(id);
+
+      const response = await fetch(`/api/requests/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to update request");
+      }
+
+      setPatients((previousPatients) =>
+        previousPatients.map((patient) =>
+          patient._id === id
+            ? { ...patient, status }
+            : patient
+        )
+      );
+
+      setSelectedPatient((previousPatient) =>
+        previousPatient?._id === id
+          ? { ...previousPatient, status }
+          : previousPatient
+      );
+    } catch (error) {
+      console.error("Status update failed:", error);
+      alert("Failed to update request status.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const getStatusText = (status: RequestStatus) => {
+    if (status === "fulfilled") {
+      return "Accepted";
+    }
+
+    if (status === "cancelled") {
+      return "Declined";
+    }
+
+    return "Open";
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 p-8">
 
       {/* Header */}
       <div className="mb-10 text-center">
-        <div className="text-5xl mb-3">🩸</div>
+
+        <div className="text-5xl mb-3">
+          🩸
+        </div>
 
         <h1 className="text-4xl font-bold text-red-600">
           Blood Request Dashboard
@@ -46,10 +109,11 @@ export default function PatientDetails() {
         <p className="text-gray-500 mt-2">
           Find patients who urgently need blood donation
         </p>
+
       </div>
 
 
-      {/* Cards */}
+      {/* Patient Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
         {patients.map((patient) => (
@@ -57,32 +121,32 @@ export default function PatientDetails() {
           <div
             key={patient._id}
             className="
-            bg-white 
-            rounded-3xl 
-            shadow-lg 
-            border 
-            border-gray-100
-            p-6
-            hover:shadow-2xl
-            transition
+              bg-white
+              rounded-3xl
+              shadow-lg
+              border
+              border-gray-100
+              p-6
+              hover:shadow-2xl
+              transition
             "
           >
 
+            {/* Patient Name + Blood Group */}
             <div className="flex justify-between items-center mb-5">
 
               <h2 className="text-2xl font-bold text-gray-800">
                 {patient.patientName}
               </h2>
 
-
               <span
                 className="
-                bg-red-500 
-                text-white 
-                px-4 
-                py-2 
-                rounded-full 
-                font-bold
+                  bg-red-500
+                  text-white
+                  px-4
+                  py-2
+                  rounded-full
+                  font-bold
                 "
               >
                 {patient.bloodGroup}
@@ -91,12 +155,11 @@ export default function PatientDetails() {
             </div>
 
 
-
+            {/* Patient Information */}
             <div className="space-y-3 text-gray-600">
 
-
               <p>
-                🏥 
+                🏥
                 <b className="text-gray-800">
                   {" "}Hospital:
                 </b>{" "}
@@ -113,7 +176,6 @@ export default function PatientDetails() {
               </p>
 
 
-
               <p>
                 📍
                 <b className="text-gray-800">
@@ -124,13 +186,24 @@ export default function PatientDetails() {
               </p>
 
 
-
               <p>
                 ⚠️
                 <b className="text-gray-800">
                   {" "}Status:
                 </b>{" "}
-                {patient.status}
+
+                <span
+                  className={
+                    patient.status === "fulfilled"
+                      ? "font-bold text-green-600"
+                      : patient.status === "cancelled"
+                      ? "font-bold text-red-600"
+                      : "font-bold text-orange-500"
+                  }
+                >
+                  {getStatusText(patient.status)}
+                </span>
+
               </p>
 
 
@@ -138,30 +211,123 @@ export default function PatientDetails() {
                 {patient.description}
               </p>
 
-
             </div>
 
 
+            {/* Accept / Decline Buttons */}
+            {patient.status === "open" && (
 
+              <div className="grid grid-cols-2 gap-3 mt-6">
+
+                <button
+                  onClick={() =>
+                    updateStatus(patient._id, "fulfilled")
+                  }
+                  disabled={updatingId === patient._id}
+                  className="
+                    bg-green-500
+                    text-white
+                    py-3
+                    rounded-xl
+                    font-semibold
+                    hover:bg-green-600
+                    transition
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
+                  "
+                >
+                  {updatingId === patient._id
+                    ? "Updating..."
+                    : "Accept"}
+                </button>
+
+
+                <button
+                  onClick={() =>
+                    updateStatus(patient._id, "cancelled")
+                  }
+                  disabled={updatingId === patient._id}
+                  className="
+                    bg-red-500
+                    text-white
+                    py-3
+                    rounded-xl
+                    font-semibold
+                    hover:bg-red-600
+                    transition
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
+                  "
+                >
+                  {updatingId === patient._id
+                    ? "Updating..."
+                    : "Decline"}
+                </button>
+
+              </div>
+
+            )}
+
+
+            {/* Accepted Message */}
+            {patient.status === "fulfilled" && (
+
+              <div
+                className="
+                  mt-6
+                  text-center
+                  bg-green-100
+                  text-green-700
+                  py-3
+                  rounded-xl
+                  font-bold
+                "
+              >
+                ✓ Request Accepted
+              </div>
+
+            )}
+
+
+            {/* Declined Message */}
+            {patient.status === "cancelled" && (
+
+              <div
+                className="
+                  mt-6
+                  text-center
+                  bg-red-100
+                  text-red-700
+                  py-3
+                  rounded-xl
+                  font-bold
+                "
+              >
+                ✕ Request Declined
+              </div>
+
+            )}
+
+
+            {/* Contact Patient Button */}
             <button
               onClick={() => setSelectedPatient(patient)}
               className="
-              mt-6
-              w-full
-              bg-gradient-to-r
-              from-red-500
-              to-pink-500
-              text-white
-              py-3
-              rounded-xl
-              font-semibold
-              hover:scale-105
-              transition
+                mt-4
+                w-full
+                bg-gradient-to-r
+                from-red-500
+                to-pink-500
+                text-white
+                py-3
+                rounded-xl
+                font-semibold
+                hover:scale-105
+                transition
               "
             >
               Contact Patient
             </button>
-
 
           </div>
 
@@ -170,30 +336,28 @@ export default function PatientDetails() {
       </div>
 
 
-
       {/* Contact Modal */}
-
       {selectedPatient && (
 
         <div
           className="
-          fixed
-          inset-0
-          bg-black/40
-          flex
-          items-center
-          justify-center
+            fixed
+            inset-0
+            bg-black/40
+            flex
+            items-center
+            justify-center
           "
         >
 
           <div
             className="
-            bg-white
-            rounded-3xl
-            p-8
-            w-[90%]
-            max-w-md
-            shadow-2xl
+              bg-white
+              rounded-3xl
+              p-8
+              w-[90%]
+              max-w-md
+              shadow-2xl
             "
           >
 
@@ -212,37 +376,34 @@ export default function PatientDetails() {
             </p>
 
 
-
             <a
               href={`tel:${selectedPatient.contactPhone}`}
               className="
-              block
-              text-center
-              bg-green-500
-              text-white
-              py-3
-              rounded-xl
-              font-bold
+                block
+                text-center
+                bg-green-500
+                text-white
+                py-3
+                rounded-xl
+                font-bold
               "
             >
               Call Now
             </a>
 
 
-
             <button
               onClick={() => setSelectedPatient(null)}
               className="
-              mt-3
-              w-full
-              bg-gray-200
-              py-3
-              rounded-xl
+                mt-3
+                w-full
+                bg-gray-200
+                py-3
+                rounded-xl
               "
             >
               Close
             </button>
-
 
           </div>
 
@@ -250,7 +411,7 @@ export default function PatientDetails() {
 
       )}
 
-
     </main>
   );
 }
+
