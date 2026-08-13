@@ -38,6 +38,17 @@ export interface IBloodRequestDTO {
   status: RequestStatus;
   contactPhone: string;
   description?: string;
+  committedDonors?: (IUserDTO | string)[];
+  confirmedDonors?: (IUserDTO | string)[];
+  createdAt: string;
+}
+
+export interface INotificationDTO {
+  _id: string;
+  recipient: string;
+  message: string;
+  relatedRequest?: string;
+  isRead: boolean;
   createdAt: string;
 }
 

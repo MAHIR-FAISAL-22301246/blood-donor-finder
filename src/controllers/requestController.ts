@@ -1,173 +1,172 @@
-import { NextRequest, NextResponse } from "next/server";
-import BloodRequest from "@/models/BloodRequest";
-import dbConnect from "@/lib/db";
+import { NextRequest, NextResponse } from 'next/server';
+import BloodRequest from '@/models/BloodRequest';
+import '@/models/User'; // Side-effect import to register schema for populate
+import User from '@/models/User';
+import Notification from '@/models/Notification';
+import dbConnect from '@/lib/db';
 
-
-// GET /api/requests
+// GET /api/requests — Get all blood requests (admin: supports all statuses)
 export async function getBloodRequests(req: NextRequest) {
+  await dbConnect();
+
+  const { searchParams } = new URL(req.url);
+  const bloodGroup = searchParams.get('bloodGroup');
+  const status = searchParams.get('status');
+  const district = searchParams.get('district');
+
+  // If status is 'all' or not provided for admin view, skip status filter
+  const query: Record<string, unknown> = {};
+  if (status && status !== 'all') query.status = status;
+  else if (!status) query.status = 'open'; // default public view shows only open
+  if (bloodGroup) query.bloodGroup = bloodGroup;
+  if (district) query['location.district'] = district;
+
   try {
-    await dbConnect();
-
-    const { searchParams } = new URL(req.url);
-
-    const bloodGroup = searchParams.get("bloodGroup");
-    const status = searchParams.get("status") || "open";
-    const district = searchParams.get("district");
-
-    const query: any = {
-      status,
-    };
-
-    if (bloodGroup) {
-      query.bloodGroup = bloodGroup;
-    }
-
-    if (district) {
-      query["location.district"] = district;
-    }
-
-    
     const requests = await BloodRequest.find(query)
+      .populate('committedDonors', 'name email phone bloodGroup location isVerified')
+      .populate('confirmedDonors', 'name email phone bloodGroup location isVerified')
       .sort({ createdAt: -1 });
-
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: requests,
-      },
-      {
-        status: 200,
-      }
-    );
-
-
+    return NextResponse.json({ success: true, data: requests }, { status: 200 });
   } catch (error) {
-
-    console.error("GET REQUEST ERROR:", error);
-
+    console.error('getBloodRequests ERROR:', error);
     return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to fetch requests",
-        error: String(error),
-      },
-      {
-        status: 500,
-      }
+      { success: false, message: 'Failed to fetch requests', error },
+      { status: 500 }
     );
   }
 }
 
-
-
-// POST /api/requests
+// POST /api/requests — Submit a new blood request
 export async function createBloodRequest(req: NextRequest) {
+  await dbConnect();
 
   try {
-
-    await dbConnect();
-
     const body = await req.json();
-    console.log("BloodRequest model:", BloodRequest);
-    const request = await BloodRequest.create(body);
+    const { patientName, bloodGroup, unitsNeeded, hospital, location, requiredDate, contactPhone } = body;
 
+    if (!patientName || !bloodGroup || !unitsNeeded || !hospital || !location?.division || !location?.district || !requiredDate || !contactPhone) {
+      return NextResponse.json(
+        { success: false, message: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: request,
-      },
-      {
-        status: 201,
+    // Placeholder requester until auth is implemented
+    const PLACEHOLDER_REQUESTER_ID = '000000000000000000000000';
+    const request = await BloodRequest.create({
+      requester: PLACEHOLDER_REQUESTER_ID,
+      patientName,
+      bloodGroup,
+      unitsNeeded: Number(unitsNeeded),
+      hospital,
+      location,
+      requiredDate,
+      contactPhone,
+      description: body.description,
+    });
+
+    // Generate notifications for matching donors (Verified, same BloodGroup, same District)
+    try {
+      const matchingDonors = await User.find({
+        role: 'donor',
+        isVerified: true,
+        bloodGroup: bloodGroup,
+        'location.district': location.district,
+        isAvailable: true
+      });
+
+      if (matchingDonors.length > 0) {
+        const notifications = matchingDonors.map(donor => ({
+          recipient: donor._id,
+          message: `Urgent! ${unitsNeeded} unit(s) of ${bloodGroup} blood needed for ${patientName} at ${hospital}.`,
+          relatedRequest: request._id
+        }));
+        await Notification.insertMany(notifications);
       }
-    );
+    } catch (notifErr) {
+      console.error('Failed to send notifications:', notifErr);
+      // We still return success since the request itself was created
+    }
 
-
+    return NextResponse.json({ success: true, data: request }, { status: 201 });
   } catch (error) {
-
-    console.error("CREATE REQUEST ERROR:", error);
-
     return NextResponse.json(
-      {
-        success:false,
-        message:"Failed to create request",
-        error:String(error),
-      },
-      {
-        status:400,
-      }
+      { success: false, message: 'Failed to create request', error: String(error) },
+      { status: 400 }
     );
-
   }
 }
 
-
-
-// PATCH /api/requests/:id
+// PATCH /api/requests/:id — Admin updates request status
 export async function updateRequestStatus(
-  id:string,
-  status:"open" | "fulfilled" | "cancelled"
-){
-
+  id: string,
+  status: 'open' | 'fulfilled' | 'cancelled'
+) {
+  await dbConnect();
   try {
-
-    await dbConnect();
-
-
     const request = await BloodRequest.findByIdAndUpdate(
       id,
-      {
-        status,
-      },
-      {
-        new:true,
-      }
+      { status },
+      { returnDocument: 'after' }
     );
 
-
-    if(!request){
-
-      return NextResponse.json(
-        {
-          success:false,
-          message:"Request not found",
-        },
-        {
-          status:404,
-        }
-      );
-
+    if (!request) {
+      return NextResponse.json({ success: false, message: 'Request not found' }, { status: 404 });
     }
 
-
+    return NextResponse.json({ success: true, data: request }, { status: 200 });
+  } catch (error) {
     return NextResponse.json(
-      {
-        success:true,
-        data:request,
-      },
-      {
-        status:200,
-      }
+      { success: false, message: 'Failed to update request', error: String(error) },
+      { status: 500 }
     );
-
-
-  } catch(error){
-
-    console.error("UPDATE REQUEST ERROR:", error);
-
-
-    return NextResponse.json(
-      {
-        success:false,
-        message:"Failed to update request",
-        error:String(error),
-      },
-      {
-        status:500,
-      }
-    );
-
   }
+}
 
+// PATCH /api/requests/:id/commit — Donor commits to a request
+export async function commitToRequest(requestId: string, donorId: string) {
+  await dbConnect();
+  try {
+    const request = await BloodRequest.findByIdAndUpdate(
+      requestId,
+      { $addToSet: { committedDonors: donorId } },
+      { returnDocument: 'after' }
+    ).populate('committedDonors', 'name email phone bloodGroup location isVerified');
+
+    if (!request) {
+      return NextResponse.json({ success: false, message: 'Request not found' }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, data: request }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: 'Commit failed', error }, { status: 500 });
+  }
+}
+
+// PATCH /api/requests/:id/confirm — Admin/Requester confirms a donation happened
+export async function confirmDonation(requestId: string, donorId: string) {
+  await dbConnect();
+  try {
+    const request = await BloodRequest.findByIdAndUpdate(
+      requestId,
+      {
+        $pull: { committedDonors: donorId },
+        $addToSet: { confirmedDonors: donorId }
+      },
+      { returnDocument: 'after' }
+    ).populate('confirmedDonors', 'name email phone bloodGroup location isVerified');
+
+    if (!request) {
+      return NextResponse.json({ success: false, message: 'Request not found' }, { status: 404 });
+    }
+
+    // Automatically fulfill if confirmed donors >= units needed
+    if (request.confirmedDonors.length >= request.unitsNeeded) {
+      request.status = 'fulfilled';
+      await request.save();
+    }
+
+    return NextResponse.json({ success: true, data: request }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: 'Confirmation failed', error }, { status: 500 });
+  }
 }
