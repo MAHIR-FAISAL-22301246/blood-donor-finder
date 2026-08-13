@@ -43,6 +43,15 @@ export interface IBloodRequestDTO {
   createdAt: string;
 }
 
+export interface INotificationDTO {
+  _id: string;
+  recipient: string;
+  message: string;
+  relatedRequest?: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;

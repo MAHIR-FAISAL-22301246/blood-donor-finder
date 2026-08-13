@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import BloodRequest from '@/models/BloodRequest';
 import '@/models/User'; // Side-effect import to register schema for populate
+import User from '@/models/User';
+import Notification from '@/models/Notification';
 import dbConnect from '@/lib/db';
 
 // GET /api/requests — Get all blood requests (admin: supports all statuses)
@@ -61,6 +63,30 @@ export async function createBloodRequest(req: NextRequest) {
       contactPhone,
       description: body.description,
     });
+
+    // Generate notifications for matching donors (Verified, same BloodGroup, same District)
+    try {
+      const matchingDonors = await User.find({
+        role: 'donor',
+        isVerified: true,
+        bloodGroup: bloodGroup,
+        'location.district': location.district,
+        isAvailable: true
+      });
+
+      if (matchingDonors.length > 0) {
+        const notifications = matchingDonors.map(donor => ({
+          recipient: donor._id,
+          message: `Urgent! ${unitsNeeded} unit(s) of ${bloodGroup} blood needed for ${patientName} at ${hospital}.`,
+          relatedRequest: request._id
+        }));
+        await Notification.insertMany(notifications);
+      }
+    } catch (notifErr) {
+      console.error('Failed to send notifications:', notifErr);
+      // We still return success since the request itself was created
+    }
+
     return NextResponse.json({ success: true, data: request }, { status: 201 });
   } catch (error) {
     return NextResponse.json(

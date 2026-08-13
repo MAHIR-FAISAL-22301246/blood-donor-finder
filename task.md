@@ -17,4 +17,9 @@
   - [x] Create commit/confirm controllers & API routes
   - [x] Create public request board for donors
   - [x] Update admin requests page to manage confirmations
-- [ ] Feature 14: Real-time notifications
+- [x] Feature 14: Real-time notifications (Polling approach)
+  - [x] Create Notification model & types
+  - [x] Trigger notifications on BloodRequest creation
+  - [x] Create Notification API routes
+  - [x] Build NotificationBell UI component
+  - [x] Integrate into Navbar
