@@ -12,10 +12,10 @@ export default function RequestCard({ request }: RequestCardProps) {
   };
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow bg-white">
+    <div className="border border-ivory-border rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow bg-ivory">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="font-semibold text-gray-800">{request.patientName}</h3>
-        <span className="bg-red-100 text-red-700 font-bold text-sm px-3 py-1 rounded-full">
+        <h3 className="font-semibold text-gray-900">{request.patientName}</h3>
+        <span className="bg-oxblood-light text-oxblood font-bold text-sm px-3 py-1 rounded-full">
           {request.bloodGroup}
         </span>
       </div>

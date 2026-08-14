@@ -68,6 +68,26 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleCompare = () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length < 2) {
+      setError('Please select at least 2 donors to compare.');
+      return;
+    }
+    setError(null);
+    router.push(`/compare?ids=${ids.join(',')}`);
+  };
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -83,6 +103,7 @@ export default function SearchPage() {
       setDonors(saved.donors ?? []);
       setCompatibleDonors(saved.compatibleDonors ?? []);
       setHasSearched(Boolean(saved.hasSearched));
+      setSelectedIds(new Set(saved.selectedIds ?? []));
     } catch {
       /* ignore corrupted state */
     }
@@ -104,15 +125,17 @@ export default function SearchPage() {
       donors,
       compatibleDonors,
       hasSearched,
+      selectedIds: Array.from(selectedIds),
     };
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-  }, [selectedBloodGroup, selectedDivision, district, availability, sortBy, donors, compatibleDonors, hasSearched]);
+  }, [selectedBloodGroup, selectedDivision, district, availability, sortBy, donors, compatibleDonors, hasSearched, selectedIds]);
 
   const handleSearch = async () => {
     setLoading(true);
     setError(null);
     setDonors([]);
     setCompatibleDonors([]);
+    setSelectedIds(new Set());
 
     try {
       const params = new URLSearchParams();
@@ -153,6 +176,7 @@ export default function SearchPage() {
     setCompatibleDonors([]);
     setHasSearched(false);
     setError(null);
+    setSelectedIds(new Set());
     sessionStorage.removeItem(STORAGE_KEY);
   };
 
@@ -210,29 +234,20 @@ export default function SearchPage() {
   }, [sortedDonors]);
 
   const selectClass =
-    'w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-sky-button focus:ring-2 focus:ring-sky-hover/30 focus:outline-none transition-colors';
+    'w-full rounded-lg border border-ivory-border bg-white px-3 py-2 text-sm text-slate-900 focus:border-oxblood focus:ring-2 focus:ring-oxblood/30 focus:outline-none transition-colors';
 
   const thinSelectClass =
-    'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-sky-button focus:ring-2 focus:ring-sky-hover/30 focus:outline-none transition-colors';
+    'w-full rounded-md border border-ivory-border bg-white px-2 py-1.5 text-xs text-slate-700 focus:border-oxblood focus:ring-2 focus:ring-oxblood/30 focus:outline-none transition-colors';
 
   return (
-    <div className="min-h-screen bg-sky-bg py-16 px-4">
+    <div className="min-h-screen bg-white py-16 px-4">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-800 mb-3 tracking-tight">
-            Find Blood Donors
-          </h1>
-          <p className="text-lg text-slate-600 max-w-xl mx-auto">
-            Filter by blood group, location and availability, then sort the results
-          </p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border-2 border-black p-8 mb-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-end">
             <div className="w-full">
               <label
                 htmlFor="bloodGroup"
-                className="block text-sm font-semibold text-slate-700 mb-2.5"
+                className="block text-sm font-semibold text-oxblood mb-2.5"
               >
                 Blood Group
               </label>
@@ -254,7 +269,7 @@ export default function SearchPage() {
             <div className="w-full">
               <label
                 htmlFor="division"
-                className="block text-sm font-semibold text-slate-700 mb-2.5"
+                className="block text-sm font-semibold text-oxblood mb-2.5"
               >
                 Division
               </label>
@@ -276,7 +291,7 @@ export default function SearchPage() {
             <div className="w-full">
               <label
                 htmlFor="district"
-                className="block text-sm font-semibold text-slate-700 mb-2.5"
+                className="block text-sm font-semibold text-oxblood mb-2.5"
               >
                 District
               </label>
@@ -293,22 +308,22 @@ export default function SearchPage() {
             <button
               onClick={handleSearch}
               disabled={loading}
-              className="w-full sm:w-auto px-8 py-3 bg-sky-button text-white font-semibold rounded-lg hover:bg-sky-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
+              className="w-full sm:w-auto px-8 py-3 bg-oxblood text-white font-semibold rounded-lg hover:bg-oxblood-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
             >
               {loading ? 'Searching...' : 'Search'}
             </button>
           </div>
 
           {error && (
-            <p className="mt-5 text-sm text-red-600 font-medium">{error}</p>
+            <p className="mt-5 text-sm text-red-400 font-medium">{error}</p>
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-          <div className="bg-white rounded-lg border border-slate-200 p-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6">
+          <div className="bg-white rounded-md border border-ivory-border p-2">
             <label
               htmlFor="availability"
-              className="block text-xs font-medium text-slate-500 mb-1.5"
+              className="block text-[10px] font-medium text-slate-500 mb-1"
             >
               Availability
             </label>
@@ -324,10 +339,10 @@ export default function SearchPage() {
             </select>
           </div>
 
-          <div className="bg-white rounded-lg border border-slate-200 p-3">
+          <div className="bg-white rounded-md border border-ivory-border p-2">
             <label
               htmlFor="sort"
-              className="block text-xs font-medium text-slate-500 mb-1.5"
+              className="block text-[10px] font-medium text-slate-500 mb-1"
             >
               Sort by
             </label>
@@ -347,29 +362,43 @@ export default function SearchPage() {
 
           <button
             onClick={handleReset}
-            className="bg-white rounded-lg border border-slate-200 p-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors text-left"
+            className="bg-oxblood rounded-md border border-ivory-border px-3 py-1.5 text-xs font-medium text-white hover:bg-oxblood-hover transition-colors"
           >
             Reset All
           </button>
         </div>
 
+        {hasSearched && selectedBloodGroup && selectedIds.size > 0 && (
+            <div className="flex items-center justify-between bg-white rounded-lg border border-ivory-border p-3 mb-6">
+            <p className="text-sm font-medium text-slate-700">
+              {selectedIds.size} donor{selectedIds.size !== 1 && 's'} selected
+            </p>
+            <button
+              onClick={handleCompare}
+              className="px-4 py-2 bg-oxblood text-white text-sm font-semibold rounded-lg hover:bg-oxblood-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
+            >
+              Compare Selected
+            </button>
+          </div>
+        )}
+
         {loading && (
-          <p className="text-center text-slate-500 font-medium">Searching...</p>
+          <p className="text-center text-gray-400 font-medium">Searching...</p>
         )}
 
         {!loading && hasSearched && donors.length === 0 && !error && (
-          <p className="text-center text-slate-500">
+          <p className="text-center text-gray-400">
             No donors match your filters.
           </p>
         )}
 
         {compatibleDonors.length > 0 && (
           <div className="mb-8">
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-6">
-              <h2 className="text-lg font-semibold text-amber-900 mb-2">
+            <div className="bg-oxblood-light border border-oxblood/30 rounded-xl p-6 mb-6">
+              <h2 className="text-lg font-semibold text-oxblood mb-2">
                 No available {selectedBloodGroup} donors found
               </h2>
-              <p className="text-sm text-amber-700">
+              <p className="text-sm text-oxblood/80">
                 People with <span className="font-semibold">{selectedBloodGroup}</span> blood can safely receive from donors with these compatible blood groups:
               </p>
             </div>
@@ -378,7 +407,7 @@ export default function SearchPage() {
               {compatibleDonors.map((group) => (
                 <div
                   key={group.bloodGroup}
-                  className="bg-white rounded-xl shadow-sm border border-slate-200 p-6"
+                  className="bg-ivory rounded-xl shadow-sm border border-ivory-border p-6"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-slate-800">
@@ -386,7 +415,7 @@ export default function SearchPage() {
                         ? `${group.bloodGroup} donors (exact match)`
                         : `${group.bloodGroup} donors (compatible)`}
                     </h3>
-                    <span className="px-3 py-1.5 bg-amber-100 text-amber-700 text-sm font-semibold rounded-full">
+                    <span className="px-3 py-1.5 bg-oxblood-light text-oxblood text-sm font-semibold rounded-full border border-oxblood/20">
                       {group.count} donor{group.count !== 1 && 's'} available
                     </span>
                   </div>
@@ -397,20 +426,32 @@ export default function SearchPage() {
                         key={donor._id.toString()}
                         role="button"
                         tabIndex={0}
-                        onClick={() => router.push(`/donors/${donor._id.toString()}`)}
+                        onClick={(e) => {
+                          if ((e.target as HTMLElement).closest('input[type="checkbox"]')) return;
+                          router.push(`/donors/${donor._id.toString()}`);
+                        }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             router.push(`/donors/${donor._id.toString()}`);
                           }
                         }}
-                        className="block cursor-pointer bg-slate-50 rounded-lg border border-slate-200 p-4 hover:shadow-md hover:border-amber-300 transition-all"
+                         className="block cursor-pointer bg-slate-50 rounded-lg border border-ivory-border p-4 hover:shadow-md hover:border-oxblood/40 transition-all"
                       >
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-base font-semibold text-slate-800">
-                            {donor.name}
-                          </h4>
-                          <span className="px-3 py-1 bg-amber-50 text-amber-700 text-sm font-semibold rounded-full border border-amber-200">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(donor._id.toString())}
+                              onChange={() => toggleSelect(donor._id.toString())}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-4 h-4 text-oxblood border-slate-300 rounded focus:ring-oxblood"
+                            />
+                            <h4 className="text-base font-semibold text-slate-800">
+                              {donor.name}
+                            </h4>
+                          </div>
+                          <span className="px-3 py-1 bg-oxblood-light text-oxblood text-sm font-semibold rounded-full border border-oxblood/20">
                             {donor.bloodGroup}
                           </span>
                         </div>
@@ -424,7 +465,7 @@ export default function SearchPage() {
                             <a
                               href={`tel:${donor.phone}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="text-slate-900 hover:text-amber-600 underline underline-offset-2 transition-colors"
+                              className="text-slate-900 hover:text-oxblood underline underline-offset-2 transition-colors"
                             >
                               {donor.phone}
                             </a>
@@ -469,7 +510,7 @@ export default function SearchPage() {
         {sortedDonors.length > 0 && !compatibleDonors.length && (
           <>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <p className="text-sm font-medium text-slate-600">
+              <p className="text-sm font-medium text-gray-600">
                 {sortedDonors.length} donor{sortedDonors.length !== 1 && 's'} found
               </p>
               <div className="flex flex-wrap gap-2 text-xs font-medium">
@@ -479,7 +520,7 @@ export default function SearchPage() {
                 <span className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-600">
                   Unavailable: {summary.unavailable}
                 </span>
-                <span className="px-3 py-1.5 rounded-full bg-sky-bg text-slate-700 border border-sky-hover/20">
+                <span className="px-3 py-1.5 rounded-full bg-oxblood-light text-oxblood border border-oxblood/20">
                   Recently active: {summary.recentlyActive}
                 </span>
                 <span className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-600">
@@ -494,20 +535,32 @@ export default function SearchPage() {
                   key={donor._id}
                   role="button"
                   tabIndex={0}
-                  onClick={() => router.push(`/donors/${donor._id}`)}
+                  onClick={(e) => {
+                    if ((e.target as HTMLElement).closest('input[type="checkbox"]')) return;
+                    router.push(`/donors/${donor._id}`);
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
                       router.push(`/donors/${donor._id}`);
                     }
                   }}
-                  className="block cursor-pointer bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md hover:border-sky-hover/40 transition-all"
+                   className="block cursor-pointer bg-ivory rounded-xl shadow-sm border border-ivory-border p-6 hover:shadow-md hover:border-oxblood/40 transition-all"
                 >
                   <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-xl font-semibold text-slate-800">
-                      {donor.name}
-                    </h3>
-                    <span className="px-3.5 py-1.5 bg-sky-bg text-slate-700 text-sm font-semibold rounded-full border border-sky-hover/20">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(donor._id)}
+                        onChange={() => toggleSelect(donor._id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-4 h-4 text-oxblood border-slate-300 rounded focus:ring-oxblood"
+                      />
+                      <h3 className="text-xl font-semibold text-slate-800">
+                        {donor.name}
+                      </h3>
+                    </div>
+                    <span className="px-3.5 py-1.5 bg-oxblood-light text-oxblood text-sm font-semibold rounded-full border border-oxblood/20">
                       {donor.bloodGroup}
                     </span>
                   </div>
@@ -521,7 +574,7 @@ export default function SearchPage() {
                       <a
                         href={`tel:${donor.phone}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="text-slate-900 hover:text-sky-hover underline underline-offset-2 transition-colors"
+                        className="text-slate-900 hover:text-oxblood underline underline-offset-2 transition-colors"
                       >
                         {donor.phone}
                       </a>

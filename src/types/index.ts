@@ -1,4 +1,6 @@
-import type { IUser } from '@/models/User';
+import type { IUser, IUserDTO } from '@/models/User';
+import type { IBloodRequest, IBloodRequestDTO } from '@/models/BloodRequest';
+import type { ISelectedDonor } from '@/models/SelectedDonor';
 
 export type BloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
 
@@ -53,3 +55,12 @@ export interface CompatibleDonorGroup {
   donors: IUser[];
   count: number;
 }
+
+export interface ISelectedDonorDTO {
+  _id: string;
+  donorId: string;
+  donor: IUserDTO;
+  selectedAt: string;
+  selectedBy?: string;
+}
+
