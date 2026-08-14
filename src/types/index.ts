@@ -64,3 +64,29 @@ export interface ISelectedDonorDTO {
   selectedBy?: string;
 }
 
+export interface ISavedSearchDTO {
+  _id: string;
+  bloodGroup?: string;
+  division?: string;
+  district?: string;
+  availability?: string;
+  sortBy?: string;
+  searchedAt: string;
+}
+
+export interface SearchAnalytics {
+  totalSearches: number;
+  mostSearchedBloodGroup?: string;
+  mostSearchedLocation?: string;
+  searchFrequency: { date: string; count: number }[];
+  bloodGroupDemand: BloodGroupDemand[];
+}
+
+export interface BloodGroupDemand {
+  bloodGroup: BloodGroup;
+  searchCount: number;
+  availableDonors: number;
+  totalDonors: number;
+  shortageLevel: 'high' | 'medium' | 'low';
+}
+

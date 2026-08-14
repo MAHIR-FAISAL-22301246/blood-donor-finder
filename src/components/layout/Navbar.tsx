@@ -8,6 +8,8 @@ export default function Navbar() {
       </Link>
       <div className="flex gap-6 text-sm font-medium">
         <Link href="/search" className="hover:text-red-200 transition-colors">Find Donors</Link>
+        <Link href="/saved-searches" className="hover:text-red-200 transition-colors">Saved Searches</Link>
+        <Link href="/search-analytics" className="hover:text-red-200 transition-colors">Search Analytics</Link>
         <Link href="/selected-donors" className="hover:text-red-200 transition-colors">Selected Donors</Link>
       </div>
     </nav>
