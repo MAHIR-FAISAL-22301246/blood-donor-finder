@@ -25,18 +25,36 @@ export default function PatientDetails() {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch("/api/requests")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setPatients(data.data);
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to fetch patients:", error);
-      });
-  }, []);
+useEffect(() => {
+  const fetchPatients = async () => {
+    try {
+      const [openRes, fulfilledRes, cancelledRes] = await Promise.all([
+        fetch("/api/requests?status=open"),
+        fetch("/api/requests?status=fulfilled"),
+        fetch("/api/requests?status=cancelled"),
+      ]);
+
+      const [openData, fulfilledData, cancelledData] = await Promise.all([
+        openRes.json(),
+        fulfilledRes.json(),
+        cancelledRes.json(),
+      ]);
+
+      const allPatients = [
+        ...(openData.success ? openData.data : []),
+        ...(fulfilledData.success ? fulfilledData.data : []),
+        ...(cancelledData.success ? cancelledData.data : []),
+      ];
+
+      setPatients(allPatients);
+    } catch (error) {
+      console.error("Failed to fetch patients:", error);
+    }
+  };
+
+  fetchPatients();
+}, []);
+
 
   const updateStatus = async (
     id: string,
