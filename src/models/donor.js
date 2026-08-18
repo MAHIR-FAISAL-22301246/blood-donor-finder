@@ -24,11 +24,19 @@ const DonorSchema = new mongoose.Schema(
       trim: true,
       validate: {
         validator: function (v) {
-          // Simple validation for Bangladeshi phone numbers: 01xxxxxxxxx, +8801xxxxxxxxx, or 8801xxxxxxxxx
+          // Allow encrypted values (iv:ciphertext) or valid plain Bangladeshi phone numbers
+          const isEncrypted = typeof v === 'string' && v.includes(':');
+          if (isEncrypted) return true;
           return /^(?:\+8801|8801|01)[3-9]\d{8}$/.test(v);
         },
         message: (props) => `${props.value} is not a valid phone number!`,
       },
+    },
+    phoneHash: {
+      type: String,
+      required: [true, 'Phone hash is required for secure unique indexing'],
+      unique: true,
+      index: true,
     },
     bloodGroup: {
       type: String,

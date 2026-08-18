@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchResetBtn = document.getElementById('search-reset-btn');
   const donorsGrid = document.getElementById('donors-grid');
   const resultsCount = document.getElementById('results-count');
+  const searchDivision = document.getElementById('search-division');
+  const searchDistrict = document.getElementById('search-district');
+  const searchUpazila = document.getElementById('search-upazila');
 
   // Registration Elements
   const registrationForm = document.getElementById('registration-form');
@@ -60,6 +63,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- State Variables ---
   let activeTab = 'search';
+
+  // --- Location Dropdown Helpers ---
+  // Populate district dropdown based on selected division
+  function populateDistricts(divisionSelect, districtSelect, upazilaSelect, selectedDistrict = '') {
+    const division = divisionSelect.value;
+    districtSelect.innerHTML = '<option value="">' + (division ? '-- Select District --' : 'All Districts') + '</option>';
+    if (upazilaSelect) upazilaSelect.innerHTML = '<option value="">' + (division ? '-- Select Upazila --' : 'All Upazilas / Areas') + '</option>';
+    if (!division || !window.BD_LOCATIONS || !window.BD_LOCATIONS[division]) return;
+    const districts = Object.keys(window.BD_LOCATIONS[division]);
+    districts.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = d;
+      districtSelect.appendChild(opt);
+    });
+    if (selectedDistrict) districtSelect.value = selectedDistrict;
+  }
+
+  // Populate upazila dropdown based on selected division + district
+  function populateUpazilas(divisionSelect, districtSelect, upazilaSelect, selectedUpazila = '') {
+    const division = divisionSelect.value;
+    const district = districtSelect.value;
+    const placeholder = division && district ? '-- Select Upazila --' : 'All Upazilas / Areas';
+    upazilaSelect.innerHTML = `<option value="">${placeholder}</option>`;
+    if (!division || !district || !window.BD_LOCATIONS) return;
+    const upazilas = (window.BD_LOCATIONS[division] || {})[district] || [];
+    upazilas.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u;
+      opt.textContent = u;
+      upazilaSelect.appendChild(opt);
+    });
+    if (selectedUpazila) upazilaSelect.value = selectedUpazila;
+  }
 
   // --- Helper: Toast Notification ---
   function showToast(message, type = 'info') {
@@ -112,6 +149,30 @@ document.addEventListener('DOMContentLoaded', () => {
   tabSearchBtn.addEventListener('click', () => switchTab('search'));
   tabRegisterBtn.addEventListener('click', () => switchTab('register'));
   tabManageBtn.addEventListener('click', () => switchTab('manage'));
+
+  // --- Location Cascade: Search Form ---
+  searchDivision.addEventListener('change', () => {
+    populateDistricts(searchDivision, searchDistrict, searchUpazila);
+  });
+  searchDistrict.addEventListener('change', () => {
+    populateUpazilas(searchDivision, searchDistrict, searchUpazila);
+  });
+
+  // --- Location Cascade: Registration Form ---
+  regDivision.addEventListener('change', () => {
+    populateDistricts(regDivision, regDistrict, regUpazila);
+  });
+  regDistrict.addEventListener('change', () => {
+    populateUpazilas(regDivision, regDistrict, regUpazila);
+  });
+
+  // --- Location Cascade: Edit Profile Form ---
+  editDivision.addEventListener('change', () => {
+    populateDistricts(editDivision, editDistrict, editUpazila);
+  });
+  editDistrict.addEventListener('change', () => {
+    populateUpazilas(editDivision, editDistrict, editUpazila);
+  });
 
   // --- Input Validation Helpers ---
   function clearErrors() {
@@ -226,6 +287,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   searchResetBtn.addEventListener('click', () => {
     searchForm.reset();
+    // Reset cascaded dropdowns
+    searchDistrict.innerHTML = '<option value="">All Districts</option>';
+    searchUpazila.innerHTML = '<option value="">All Upazilas / Areas</option>';
     fetchDonors();
   });
 
@@ -242,8 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgVal = regBloodGroup.value;
     const statusVal = regStatus.value;
     const divVal = regDivision.value;
-    const distVal = regDistrict.value.trim();
-    const upazilaVal = regUpazila.value.trim();
+    const distVal = regDistrict.value;
+    const upazilaVal = regUpazila.value;
 
     if (nameVal.length < 2) {
       displayError('err-reg-name', 'Name must be at least 2 characters long.');
@@ -266,12 +330,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!distVal) {
-      displayError('err-reg-district', 'District field is required.');
+      displayError('err-reg-district', 'Please select a district.');
       hasError = true;
     }
 
     if (!upazilaVal) {
-      displayError('err-reg-upazila', 'Upazila/Area field is required.');
+      displayError('err-reg-upazila', 'Please select an upazila / area.');
       hasError = true;
     }
 
@@ -306,6 +370,9 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(`Thank you for registering! Your Unique Donor ID is: ${registered.donorId}\nSave this ID to update or delete your profile in the 'Manage Profile' tab.`);
         
         registrationForm.reset();
+        // Reset cascaded dropdowns
+        regDistrict.innerHTML = '<option value="">-- Select District --</option>';
+        regUpazila.innerHTML = '<option value="">-- Select Upazila --</option>';
         switchTab('search');
       } else {
         const errors = result.errors || [result.error || 'Server error occurred'];
@@ -339,14 +406,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (response.ok && result.success) {
         const donor = result.data;
         // Populate inputs
-        editDbId.value = donor.donorId; // We can query by donorId
+        editDbId.value = donor.donorId;
         editName.value = donor.name;
         editPhone.value = donor.phone;
         editBloodGroup.value = donor.bloodGroup;
         editStatus.value = donor.status;
+        // Cascade-populate location dropdowns with current donor values
         editDivision.value = donor.division;
-        editDistrict.value = donor.district;
-        editUpazila.value = donor.upazilaOrArea;
+        populateDistricts(editDivision, editDistrict, editUpazila, donor.district);
+        populateUpazilas(editDivision, editDistrict, editUpazila, donor.upazilaOrArea);
 
         // Sync and format the Quick Status elements
         syncQuickStatusUI(donor.status);
@@ -402,8 +470,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgVal = editBloodGroup.value;
     const statusVal = editStatus.value;
     const divVal = editDivision.value;
-    const distVal = editDistrict.value.trim();
-    const upazilaVal = editUpazila.value.trim();
+    const distVal = editDistrict.value;
+    const upazilaVal = editUpazila.value;
 
     let hasError = false;
     if (nameVal.length < 2) {

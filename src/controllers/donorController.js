@@ -150,6 +150,9 @@ export const donorController = {
       }
     } catch (error) {
       console.error('Error updating donor profile:', error);
+      if (error.code === 11000) {
+        return NextResponse.json({ success: false, errors: ['A donor with this phone number already exists.'] }, { status: 400 });
+      }
       return NextResponse.json({ success: false, errors: ['Server Error: ' + error.message] }, { status: 500 });
     }
   },

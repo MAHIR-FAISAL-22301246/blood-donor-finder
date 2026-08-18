@@ -74,11 +74,15 @@
             </div>
             <div class="input-group">
               <label for="search-district">District</label>
-              <input type="text" id="search-district" placeholder="e.g. Gazipur, Bogura">
+              <select id="search-district">
+                <option value="">All Districts</option>
+              </select>
             </div>
             <div class="input-group">
               <label for="search-upazila">Upazila / Area</label>
-              <input type="text" id="search-upazila" placeholder="e.g. Savar, Mirpur">
+              <select id="search-upazila">
+                <option value="">All Upazilas / Areas</option>
+              </select>
             </div>
             <div class="form-actions span-all">
               <button type="submit" id="search-btn" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
@@ -166,13 +170,17 @@
 
             <div class="input-group span-third">
               <label for="reg-district">District <span class="required">*</span></label>
-              <input type="text" id="reg-district" required placeholder="e.g. Gazipur">
+              <select id="reg-district" required>
+                <option value="">-- Select District --</option>
+              </select>
               <span class="error-msg" id="err-reg-district"></span>
             </div>
 
             <div class="input-group span-third">
               <label for="reg-upazila">Upazila / Area <span class="required">*</span></label>
-              <input type="text" id="reg-upazila" required placeholder="e.g. Savar">
+              <select id="reg-upazila" required>
+                <option value="">-- Select Upazila --</option>
+              </select>
               <span class="error-msg" id="err-reg-upazila"></span>
             </div>
 
@@ -287,13 +295,17 @@
 
                 <div class="input-group span-third">
                   <label for="edit-district">District <span class="required">*</span></label>
-                  <input type="text" id="edit-district" required placeholder="e.g. Gazipur">
+                  <select id="edit-district" required>
+                    <option value="">-- Select District --</option>
+                  </select>
                   <span class="error-msg" id="err-edit-district"></span>
                 </div>
 
                 <div class="input-group span-third">
                   <label for="edit-upazila">Upazila / Area <span class="required">*</span></label>
-                  <input type="text" id="edit-upazila" required placeholder="e.g. Savar">
+                  <select id="edit-upazila" required>
+                    <option value="">-- Select Upazila --</option>
+                  </select>
                   <span class="error-msg" id="err-edit-upazila"></span>
                 </div>
 
@@ -318,6 +330,7 @@
   </div>
 
   <!-- Custom Script -->
+  <script src="bd-locations.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
