@@ -85,10 +85,7 @@ export default function AdminDashboard() {
   const unverifiedCount = donors.length - verifiedCount;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <Toaster position="top-right" />
-      <Navbar />
-      
+    <>
       {/* Hero Section */}
       <div className="bg-[#1e293b] text-white pb-24 pt-12 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
@@ -205,7 +202,6 @@ export default function AdminDashboard() {
           </div>
         )}
       </main>
-      <Footer />
-    </div>
+    </>
   );
 }

@@ -60,7 +60,7 @@ export default function DonorProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-sky-bg flex items-center justify-center">
+      <div className="flex-grow flex items-center justify-center">
         <p className="text-slate-500 font-medium">Loading donor...</p>
       </div>
     );
@@ -68,12 +68,12 @@ export default function DonorProfilePage() {
 
   if (error || !donor) {
     return (
-      <div className="min-h-screen bg-sky-bg py-16 px-4">
-        <div className="max-w-2xl mx-auto text-center">
+      <div className="flex-grow flex items-center justify-center">
+        <div className="max-w-2xl mx-auto text-center py-16 px-4">
           <p className="text-red-600 font-medium mb-6">{error || 'Donor not found'}</p>
           <Link
             href="/search"
-            className="inline-block px-6 py-3 bg-sky-button text-white font-semibold rounded-lg hover:bg-sky-hover transition-colors shadow-sm"
+            className="inline-block px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-sm"
           >
             Back to search
           </Link>
@@ -83,8 +83,26 @@ export default function DonorProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-sky-bg py-16 px-4">
-      <div className="max-w-2xl mx-auto">
+    <>
+      {/* Hero Section */}
+      <div className="bg-[#1e293b] text-white pb-24 pt-12 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+                <span className="text-red-400">👤</span>
+                Donor Profile
+              </h1>
+              <p className="text-slate-300 text-lg max-w-xl">
+                View detailed information and donation history for this donor.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <main className="flex-grow container mx-auto px-4 py-8 pb-12">
+        <div className="max-w-2xl mx-auto">
         <Link
           href="/search"
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-sky-hover transition-colors mb-8"
@@ -170,7 +188,8 @@ export default function DonorProfilePage() {
             </ol>
           )}
         </div>
-      </div>
-    </div>
+        </div>
+      </main>
+    </>
   );
 }

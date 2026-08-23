@@ -33,20 +33,25 @@ export default function PatientDetails() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 p-8">
-
-      {/* Header */}
-      <div className="mb-10 text-center">
-        <div className="text-5xl mb-3">🩸</div>
-
-        <h1 className="text-4xl font-bold text-red-600">
-          Blood Request Dashboard
-        </h1>
-
-        <p className="text-gray-500 mt-2">
-          Find patients who urgently need blood donation
-        </p>
+    <>
+      {/* Hero Section */}
+      <div className="bg-[#1e293b] text-white pb-24 pt-12 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+                <span className="text-red-400">🩸</span>
+                Patient Details Dashboard
+              </h1>
+              <p className="text-slate-300 text-lg max-w-xl">
+                Find patients who urgently need blood donation
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <main className="flex-grow container mx-auto px-4 py-8 pb-12">
 
 
       {/* Cards */}
@@ -251,6 +256,7 @@ export default function PatientDetails() {
       )}
 
 
-    </main>
+      </main>
+    </>
   );
 }

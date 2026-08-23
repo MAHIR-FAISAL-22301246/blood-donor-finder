@@ -118,10 +118,7 @@ export default function AdminRequestsPage() {
   const openCount = requests.filter(r => r.status === 'open').length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
-      <Toaster position="top-right" />
-      <Navbar />
-
+    <>
       {/* Hero */}
       <div className="bg-[#1e293b] text-white pb-24 pt-12">
         <div className="container mx-auto px-4">
@@ -299,7 +296,6 @@ export default function AdminRequestsPage() {
           )}
         </div>
       </main>
-      <Footer />
-    </div>
+    </>
   );
 }

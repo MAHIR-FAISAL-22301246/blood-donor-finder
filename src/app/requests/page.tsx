@@ -86,9 +86,7 @@ export default function RequestBloodPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
-      <Navbar />
-
+    <>
       {/* Hero */}
       <div className="bg-[#1e293b] text-white pb-20 pt-12">
         <div className="container mx-auto px-4">
@@ -312,7 +310,6 @@ export default function RequestBloodPage() {
           </div>
         )}
       </main>
-      <Footer />
-    </div>
+    </>
   );
 }

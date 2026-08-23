@@ -61,10 +61,7 @@ export default function RequestBoardPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
-      <Toaster position="top-right" />
-      <Navbar />
-
+    <>
       {/* Hero */}
       <div className="bg-[#1e293b] text-white pb-20 pt-12">
         <div className="container mx-auto px-4">
@@ -156,7 +153,6 @@ export default function RequestBoardPage() {
           </div>
         )}
       </main>
-      <Footer />
-    </div>
+    </>
   );
 }

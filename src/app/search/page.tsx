@@ -216,16 +216,26 @@ export default function SearchPage() {
     'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-sky-button focus:ring-2 focus:ring-sky-hover/30 focus:outline-none transition-colors';
 
   return (
-    <div className="min-h-screen bg-sky-bg py-16 px-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-800 mb-3 tracking-tight">
-            Find Blood Donors
-          </h1>
-          <p className="text-lg text-slate-600 max-w-xl mx-auto">
-            Filter by blood group, location and availability, then sort the results
-          </p>
+    <>
+      {/* Hero Section */}
+      <div className="bg-[#1e293b] text-white pb-24 pt-12 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+                <span className="text-red-400">🔍</span>
+                Find Blood Donors
+              </h1>
+              <p className="text-slate-300 text-lg max-w-xl">
+                Filter by blood group, location and availability, then sort the results
+              </p>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <main className="flex-grow container mx-auto px-4 py-8 pb-12">
+        <div className="max-w-5xl mx-auto">
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-end">
@@ -563,7 +573,8 @@ export default function SearchPage() {
             </div>
           </>
         )}
-      </div>
-    </div>
+        </div>
+      </main>
+    </>
   );
 }
