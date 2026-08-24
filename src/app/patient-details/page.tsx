@@ -21,6 +21,53 @@ type Patient = {
 export default function PatientDetails() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  type RequestStatus = "open" | "fulfilled" | "cancelled";
+
+  const updateStatus = async (id: string, status: RequestStatus) => {
+    setUpdatingId(id);
+    try {
+      const res = await fetch(`/api/requests/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!res.ok) throw new Error("Update failed");
+
+      setPatients((previousPatients) =>
+        previousPatients.map((patient) =>
+          patient._id === id
+            ? { ...patient, status }
+            : patient
+        )
+      );
+
+      setSelectedPatient((previousPatient) =>
+        previousPatient?._id === id
+          ? { ...previousPatient, status }
+          : previousPatient
+      );
+    } catch (error) {
+      console.error("Status update failed:", error);
+      alert("Failed to update request status.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    if (status === "fulfilled") {
+      return "Accepted";
+    }
+
+    if (status === "cancelled") {
+      return "Declined";
+    }
+
+    return "Open";
+  };
 
   useEffect(() => {
     fetch("/api/requests")
@@ -135,7 +182,17 @@ export default function PatientDetails() {
                 <b className="text-gray-800">
                   {" "}Status:
                 </b>{" "}
-                {patient.status}
+                <span
+                  className={
+                    patient.status === "fulfilled"
+                      ? "font-bold text-green-600"
+                      : patient.status === "cancelled"
+                      ? "font-bold text-red-600"
+                      : "font-bold text-orange-500"
+                  }
+                >
+                  {getStatusText(patient.status)}
+                </span>
               </p>
 
 
@@ -146,7 +203,88 @@ export default function PatientDetails() {
 
             </div>
 
+            {/* Accept / Decline Buttons */}
+            {patient.status === "open" && (
+              <div className="grid grid-cols-2 gap-3 mt-6">
+                <button
+                  onClick={() =>
+                    updateStatus(patient._id, "fulfilled")
+                  }
+                  disabled={updatingId === patient._id}
+                  className="
+                    bg-green-500
+                    text-white
+                    py-3
+                    rounded-xl
+                    font-semibold
+                    hover:bg-green-600
+                    transition
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
+                  "
+                >
+                  {updatingId === patient._id
+                    ? "Updating..."
+                    : "Accept"}
+                </button>
 
+                <button
+                  onClick={() =>
+                    updateStatus(patient._id, "cancelled")
+                  }
+                  disabled={updatingId === patient._id}
+                  className="
+                    bg-red-500
+                    text-white
+                    py-3
+                    rounded-xl
+                    font-semibold
+                    hover:bg-red-600
+                    transition
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
+                  "
+                >
+                  {updatingId === patient._id
+                    ? "Updating..."
+                    : "Decline"}
+                </button>
+              </div>
+            )}
+
+            {/* Accepted Message */}
+            {patient.status === "fulfilled" && (
+              <div
+                className="
+                  mt-6
+                  text-center
+                  bg-green-100
+                  text-green-700
+                  py-3
+                  rounded-xl
+                  font-bold
+                "
+              >
+                ✓ Request Accepted
+              </div>
+            )}
+
+            {/* Declined Message */}
+            {patient.status === "cancelled" && (
+              <div
+                className="
+                  mt-6
+                  text-center
+                  bg-red-100
+                  text-red-700
+                  py-3
+                  rounded-xl
+                  font-bold
+                "
+              >
+                ✕ Request Declined
+              </div>
+            )}
 
             <button
               onClick={() => setSelectedPatient(patient)}

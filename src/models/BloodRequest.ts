@@ -12,7 +12,7 @@ export interface IBloodRequest extends Document {
     area: string;
   };
   requiredDate: Date;
-  status: 'open' | 'fulfilled' | 'cancelled';
+  status: 'open' | 'fulfilled' | 'cancelled' | 'pending';
   contactPhone: string;
   description?: string;
   committedDonors: mongoose.Types.ObjectId[];
@@ -38,7 +38,7 @@ const BloodRequestSchema: Schema<IBloodRequest> = new Schema(
       area: { type: String, default: '' },
     },
     requiredDate: { type: Date, required: true },
-    status: { type: String, enum: ['open', 'fulfilled', 'cancelled'], default: 'open' },
+    status: { type: String, enum: ['open', 'fulfilled', 'cancelled', 'pending'], default: 'open' },
     contactPhone: { type: String, required: true },
     description: { type: String },
     committedDonors: [{ type: Schema.Types.ObjectId, ref: 'User' }],

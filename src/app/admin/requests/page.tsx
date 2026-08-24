@@ -10,6 +10,7 @@ import { IBloodRequestDTO, RequestStatus } from '@/types';
 const STATUS_TABS: { label: string; value: string }[] = [
   { label: 'All', value: 'all' },
   { label: 'Open', value: 'open' },
+  { label: 'Pending', value: 'pending' },
   { label: 'Fulfilled', value: 'fulfilled' },
   { label: 'Cancelled', value: 'cancelled' },
 ];
@@ -17,11 +18,13 @@ const STATUS_TABS: { label: string; value: string }[] = [
 const statusBadge = (status: RequestStatus) => {
   const styles: Record<RequestStatus, string> = {
     open: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+    pending: 'bg-orange-50 text-orange-700 border border-orange-200',
     fulfilled: 'bg-green-50 text-green-700 border border-green-200',
     cancelled: 'bg-gray-100 text-gray-500 border border-gray-200',
   };
   const icons: Record<RequestStatus, React.ReactNode> = {
     open: <Clock size={12} />,
+    pending: <Clock size={12} />,
     fulfilled: <CheckCircle size={12} />,
     cancelled: <XCircle size={12} />,
   };
@@ -268,7 +271,16 @@ export default function AdminRequestsPage() {
                               ✓ Fulfill (Manual)
                             </button>
                           )}
-                          {request.status === 'open' && (
+                          {request.status !== 'pending' && request.status !== 'fulfilled' && request.status !== 'cancelled' && (
+                            <button
+                              onClick={() => handleStatusChange(request._id, 'pending')}
+                              disabled={updating === request._id}
+                              className="text-orange-600 border border-orange-200 hover:bg-orange-50 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50 text-left"
+                            >
+                              ⏳ Mark Pending
+                            </button>
+                          )}
+                          {(request.status === 'open' || request.status === 'pending') && (
                             <button
                               onClick={() => handleStatusChange(request._id, 'cancelled')}
                               disabled={updating === request._id}

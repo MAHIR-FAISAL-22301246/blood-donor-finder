@@ -4,7 +4,7 @@ export type BloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-'
 
 export type UserRole = 'donor' | 'admin' | 'user';
 
-export type RequestStatus = 'open' | 'fulfilled' | 'cancelled';
+export type RequestStatus = 'open' | 'fulfilled' | 'cancelled' | 'pending';
 
 export interface Location {
   division: string;
@@ -63,4 +63,38 @@ export interface CompatibleDonorGroup {
   bloodGroup: BloodGroup;
   donors: IUser[];
   count: number;
+}
+
+export interface ISelectedDonorDTO {
+  _id: string;
+  donorId: string;
+  donor: IUserDTO;
+  selectedAt: string;
+  selectedBy?: string;
+}
+
+export interface ISavedSearchDTO {
+  _id: string;
+  bloodGroup?: string;
+  division?: string;
+  district?: string;
+  availability?: string;
+  sortBy?: string;
+  searchedAt: string;
+}
+
+export interface BloodGroupDemand {
+  bloodGroup: BloodGroup;
+  searchCount: number;
+  availableDonors: number;
+  totalDonors: number;
+  shortageLevel: 'high' | 'medium' | 'low';
+}
+
+export interface SearchAnalytics {
+  totalSearches: number;
+  mostSearchedBloodGroup?: string;
+  mostSearchedLocation?: string;
+  searchFrequency: { date: string; count: number }[];
+  bloodGroupDemand: BloodGroupDemand[];
 }

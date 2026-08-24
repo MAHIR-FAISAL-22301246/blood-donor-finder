@@ -4,6 +4,7 @@ import '@/models/User'; // Side-effect import to register schema for populate
 import User from '@/models/User';
 import Notification from '@/models/Notification';
 import dbConnect from '@/lib/db';
+import { RequestStatus } from '@/types';
 
 // GET /api/requests — Get all blood requests (admin: supports all statuses)
 export async function getBloodRequests(req: NextRequest) {
@@ -100,7 +101,7 @@ export async function createBloodRequest(req: NextRequest) {
 // PATCH /api/requests/:id — Admin updates request status
 export async function updateRequestStatus(
   id: string,
-  status: 'open' | 'fulfilled' | 'cancelled'
+  status: RequestStatus
 ) {
   await dbConnect();
   try {
