@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import type { CompatibleDonorGroup } from '@/types';
+import type { CompatibleDonorGroup, ISavedSearchDTO } from '@/types';
 
 interface DonationRecord {
   date: string;
@@ -68,6 +68,38 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [savedSearches, setSavedSearches] = useState<ISavedSearchDTO[]>([]);
+
+  const fetchSavedSearches = async () => {
+    try {
+      const res = await fetch('/api/saved-searches?limit=10');
+      const json = await res.json();
+      if (json.success) setSavedSearches(json.data || []);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const applySavedSearch = (s: ISavedSearchDTO) => {
+    setSelectedBloodGroup(s.bloodGroup || '');
+    setSelectedDivision(s.division || '');
+    setDistrict(s.district || '');
+    setAvailability((s.availability as any) || '');
+    setSortBy((s.sortBy as any) || 'default');
+  };
+
+  const deleteSavedSearch = async (id: string) => {
+    try {
+      await fetch(`/api/saved-searches?id=${id}`, { method: 'DELETE' });
+      setSavedSearches((prev) => prev.filter((s) => s._id !== id));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  useEffect(() => {
+    fetchSavedSearches();
+  }, []);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -136,6 +168,23 @@ export default function SearchPage() {
       setDonors(json.data ?? []);
       setCompatibleDonors(json.compatibleDonors ?? []);
       setHasSearched(true);
+
+      const saveBody = {
+        bloodGroup: selectedBloodGroup || undefined,
+        division: selectedDivision || undefined,
+        district: district || undefined,
+        availability: availability || undefined,
+        sortBy: sortBy || undefined,
+      };
+      fetch('/api/saved-searches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(saveBody),
+      }).then((r) => r.json()).then((json) => {
+        if (json.success) fetchSavedSearches();
+      }).catch(() => {
+        /* ignore save error */
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -362,6 +411,34 @@ export default function SearchPage() {
             Reset All
           </button>
         </div>
+
+        {savedSearches.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold text-slate-700 mb-2">Recent Searches</h2>
+            <div className="flex flex-wrap gap-2">
+              {savedSearches.map((s) => (
+                <div
+                  key={s._id}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-md text-xs font-medium text-slate-600 shadow-sm"
+                >
+                  <button
+                    onClick={() => applySavedSearch(s)}
+                    className="hover:text-sky-600 transition-colors"
+                  >
+                    {[s.bloodGroup, s.division, s.district].filter(Boolean).join(' · ') || 'All donors'}
+                  </button>
+                  <button
+                    onClick={() => deleteSavedSearch(s._id)}
+                    className="ml-1 text-slate-400 hover:text-red-600 transition-colors"
+                    aria-label="Delete search"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {loading && (
           <p className="text-center text-slate-500 font-medium">Searching...</p>
