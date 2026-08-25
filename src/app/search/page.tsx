@@ -68,7 +68,27 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [savedSearches, setSavedSearches] = useState<ISavedSearchDTO[]>([]);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleCompare = () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length < 2) {
+      setError('Please select at least 2 donors to compare.');
+      return;
+    }
+    setError(null);
+    router.push(`/compare?ids=${ids.join(',')}`);
+  };
 
   const fetchSavedSearches = async () => {
     try {
@@ -494,9 +514,18 @@ export default function SearchPage() {
                         className="block cursor-pointer bg-slate-50 rounded-lg border border-slate-200 p-4 hover:shadow-md hover:border-amber-300 transition-all"
                       >
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-base font-semibold text-slate-800">
-                            {donor.name}
-                          </h4>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(donor._id.toString())}
+                              onChange={() => toggleSelect(donor._id.toString())}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-600"
+                            />
+                            <h4 className="text-base font-semibold text-slate-800">
+                              {donor.name}
+                            </h4>
+                          </div>
                           <span className="px-3 py-1 bg-amber-50 text-amber-700 text-sm font-semibold rounded-full border border-amber-200">
                             {donor.bloodGroup}
                           </span>
@@ -591,9 +620,18 @@ export default function SearchPage() {
                   className="block cursor-pointer bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md hover:border-sky-hover/40 transition-all"
                 >
                   <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-xl font-semibold text-slate-800">
-                      {donor.name}
-                    </h3>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(donor._id.toString())}
+                        onChange={() => toggleSelect(donor._id.toString())}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-600"
+                      />
+                      <h3 className="text-xl font-semibold text-slate-800">
+                        {donor.name}
+                      </h3>
+                    </div>
                     <span className="px-3.5 py-1.5 bg-sky-bg text-slate-700 text-sm font-semibold rounded-full border border-sky-hover/20">
                       {donor.bloodGroup}
                     </span>
@@ -651,6 +689,22 @@ export default function SearchPage() {
           </>
         )}
         </div>
+        
+        {selectedIds.size > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] p-4 z-50">
+            <div className="container mx-auto max-w-5xl flex items-center justify-between px-4">
+              <span className="font-semibold text-slate-800">
+                {selectedIds.size} donor{selectedIds.size !== 1 && 's'} selected
+              </span>
+              <button
+                onClick={handleCompare}
+                className="px-6 py-2 bg-sky-button text-white font-semibold rounded-lg hover:bg-sky-hover transition-colors"
+              >
+                Compare Selected
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </>
   );
