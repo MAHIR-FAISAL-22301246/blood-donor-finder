@@ -69,8 +69,7 @@ export default function RegisterPage() {
   return (
     <>
       {/* Hero */}
-      <div className="bg-[#1e293b] text-white pb-24 pt-12">
-        <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
             <span className="text-red-400">🩸</span>
             Join Blood Donor Finder
@@ -79,7 +78,7 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <main className="flex-grow container mx-auto px-4 py-8 flex items-start justify-center -mt-16 relative z-10 pb-16">
+      <main className="flex-grow container mx-auto px-4 pt-8 flex items-start justify-center -mt-16 relative z-10 pb-16">
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg">
           <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">Create Account</h2>
 

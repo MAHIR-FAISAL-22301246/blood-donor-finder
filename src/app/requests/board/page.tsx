@@ -63,8 +63,7 @@ export default function RequestBoardPage() {
   return (
     <>
       {/* Hero */}
-      <div className="bg-[#1e293b] text-white pb-20 pt-12">
-        <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4">
           <div className="flex items-center gap-3 mb-2">
             <HeartHandshake size={32} className="text-red-400" />
             <h1 className="text-4xl font-bold">Urgent Blood Requests</h1>
@@ -75,7 +74,7 @@ export default function RequestBoardPage() {
         </div>
       </div>
 
-      <main className="flex-grow container mx-auto px-4 py-8 pb-16">
+      <main className="flex-grow container mx-auto px-4 pt-8 pb-16">
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="w-8 h-8 border-4 border-gray-200 border-t-red-500 rounded-full animate-spin" />
