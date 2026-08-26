@@ -86,7 +86,9 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <div className="container mx-auto px-4 relative z-10">
+      {/* Hero Section */}
+      <div className="bg-[#1e293b] text-white pb-24 pt-12 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
               <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
@@ -120,7 +122,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <main className="flex-grow container mx-auto px-4 pt-8 pb-12">
+      <main className="flex-grow container mx-auto px-4 py-8 pb-12">
         
         {/* Controls Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
