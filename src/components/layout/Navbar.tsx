@@ -18,6 +18,7 @@ export default function Navbar() {
         <Link href="/search" className="hover:text-red-200 transition-colors">Find Donors</Link>
         <Link href="/requests" className="hover:text-red-200 transition-colors">Requests</Link>
         <Link href="/search-analytics" className="hover:text-red-200 transition-colors">Analytics</Link>
+        <Link href="/saved-searches" className="hover:text-red-200 transition-colors">Saved Searches</Link>
         <Link href="/feedback" className="hover:text-red-200 transition-colors">Feedback</Link>
 
         {/* Admin link — only for admins */}
