@@ -51,8 +51,14 @@ export default function SelectedDonorsPage() {
     <>
       
 
-      <main className="flex-grow container mx-auto px-4 pt-8 pb-12">
+      <main className="flex-grow container mx-auto px-4 pt-28 pb-12">
         <div className="max-w-4xl mx-auto -mt-20">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-slate-800">Selected Donors</h1>
+            <Link href="/search" className="inline-block px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-sm">
+              Go Back to Search
+            </Link>
+          </div>
 
         {records.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border-2 border-black p-8 text-center">

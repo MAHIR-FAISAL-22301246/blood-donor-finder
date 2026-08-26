@@ -58,7 +58,7 @@ export default function FeedbackPage() {
     <>
       
 
-      <main className="flex-grow container mx-auto px-4 pt-8 pb-12 flex items-center justify-center -mt-20 relative z-20">
+      <main className="flex-grow container mx-auto px-4 pt-28 pb-12 flex items-center justify-center">
         <div className="bg-white shadow-xl rounded-3xl p-8 w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">

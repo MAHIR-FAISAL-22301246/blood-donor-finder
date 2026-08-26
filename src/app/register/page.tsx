@@ -70,7 +70,7 @@ export default function RegisterPage() {
     <>
       
 
-      <main className="flex-grow container mx-auto px-4 pt-8 flex items-start justify-center -mt-16 relative z-10 pb-16">
+      <main className="flex-grow container mx-auto px-4 pt-24 flex items-center justify-center pb-16">
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg">
           <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">Create Account</h2>
 

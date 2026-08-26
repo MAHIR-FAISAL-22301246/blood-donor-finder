@@ -82,8 +82,8 @@ export default function SearchPage() {
 
   const handleCompare = () => {
     const ids = Array.from(selectedIds);
-    if (ids.length < 2) {
-      setError('Please select at least 2 donors to compare.');
+    if (ids.length < 1) {
+      setError('Please select at least 1 donor to compare.');
       return;
     }
     setError(null);
@@ -409,7 +409,7 @@ export default function SearchPage() {
 
           <button
             onClick={handleReset}
-            className="bg-white rounded-lg border border-slate-200 p-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors text-left"
+            className="bg-red-600 rounded-lg p-3 text-sm font-medium text-white hover:bg-red-700 transition-colors text-left"
           >
             Reset All
           </button>
@@ -503,7 +503,7 @@ export default function SearchPage() {
                               checked={selectedIds.has(donor._id.toString())}
                               onChange={() => toggleSelect(donor._id.toString())}
                               onClick={(e) => e.stopPropagation()}
-                              className="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-600"
+                              className="w-4 h-4 text-red-600 border-slate-300 rounded focus:ring-red-600"
                             />
                             <h4 className="text-base font-semibold text-slate-800">
                               {donor.name}
@@ -609,7 +609,7 @@ export default function SearchPage() {
                         checked={selectedIds.has(donor._id.toString())}
                         onChange={() => toggleSelect(donor._id.toString())}
                         onClick={(e) => e.stopPropagation()}
-                        className="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-600"
+                         className="w-4 h-4 text-red-600 border-slate-300 rounded focus:ring-red-600"
                       />
                       <h3 className="text-xl font-semibold text-slate-800">
                         {donor.name}
@@ -681,7 +681,7 @@ export default function SearchPage() {
               </span>
               <button
                 onClick={handleCompare}
-                className="px-6 py-2 bg-sky-button text-white font-semibold rounded-lg hover:bg-sky-hover transition-colors"
+                className="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
               >
                 Compare Selected
               </button>

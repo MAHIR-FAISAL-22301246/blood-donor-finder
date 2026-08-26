@@ -133,10 +133,10 @@ function ComparePageInner() {
               </div>
             )}
             <div className="flex gap-3 justify-center">
-              <Link href="/selected-donors" className="inline-block px-6 py-3 bg-oxblood text-white font-semibold rounded-lg hover:bg-oxblood-hover transition-colors shadow-sm">
+              <Link href="/selected-donors" className="inline-block px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-sm">
                 View History
               </Link>
-              <Link href="/search" className="inline-block px-6 py-3 bg-white border border-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors">
+              <Link href="/search" className="inline-block px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-sm">
                 Back to Search
               </Link>
             </div>
@@ -200,7 +200,7 @@ function ComparePageInner() {
               <button
                 onClick={handleConfirm}
                 disabled={saving}
-                className="px-6 py-3 bg-oxblood text-white font-semibold rounded-lg hover:bg-oxblood-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
+                className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
               >
                 {saving ? 'Saving...' : 'Confirm Selection'}
               </button>
@@ -237,7 +237,7 @@ function ComparePageInner() {
     <>
       
 
-      <main className="flex-grow container mx-auto px-4 pt-8 pb-12">
+      <main className="flex-grow container mx-auto px-4 pt-28 pb-12">
         <div className="max-w-5xl mx-auto -mt-20">
 
 
@@ -297,7 +297,7 @@ function ComparePageInner() {
             {selectedId ? (
               <button
                 onClick={() => handleSelect(selectedId)}
-                className="inline-flex items-center justify-center px-6 py-3 bg-oxblood text-white font-semibold rounded-lg hover:bg-oxblood-hover transition-colors shadow-sm"
+                className="inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-sm"
               >
                 Select Donor
               </button>

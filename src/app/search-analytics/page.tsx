@@ -68,7 +68,7 @@ export default function SearchAnalyticsPage() {
     <>
       
 
-      <main className="flex-grow container mx-auto px-4 pt-8 pb-12">
+      <main className="flex-grow container mx-auto px-4 pt-28 pb-12">
         <div className="max-w-5xl mx-auto -mt-20">
 
         <div className="flex items-center gap-3 mb-6">
