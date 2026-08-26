@@ -286,24 +286,7 @@ export default function SearchPage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <div className="bg-[#1e293b] text-white pb-24 pt-12 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-                <span className="text-red-400">🔍</span>
-                Find Blood Donors
-              </h1>
-              <p className="text-slate-300 text-lg max-w-xl">
-                Filter by blood group, location and availability, then sort the results
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <main className="flex-grow container mx-auto px-4 py-8 pb-12">
+      <main className="flex-grow container mx-auto px-4 pt-8 pb-12">
         <div className="max-w-5xl mx-auto">
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
@@ -372,7 +355,7 @@ export default function SearchPage() {
             <button
               onClick={handleSearch}
               disabled={loading}
-              className="w-full sm:w-auto px-8 py-3 bg-sky-button text-white font-semibold rounded-lg hover:bg-sky-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
+              className="w-full sm:w-auto px-8 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
             >
               {loading ? 'Searching...' : 'Search'}
             </button>
