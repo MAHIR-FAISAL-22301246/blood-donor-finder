@@ -122,34 +122,9 @@ export default function AdminRequestsPage() {
 
   return (
     <>
-      {/* Hero */}
-      <div className="bg-[#1e293b] text-white pb-24 pt-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-                <ClipboardList size={36} className="text-blue-400" />
-                Manage Requests
-              </h1>
-              <p className="text-slate-300 text-lg max-w-xl">
-                Review all incoming blood requests and update their status.
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <div className="bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10 min-w-[120px]">
-                <p className="text-slate-300 text-sm font-medium mb-1">Total Requests</p>
-                <p className="text-3xl font-bold">{requests.length}</p>
-              </div>
-              <div className="bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10 min-w-[120px]">
-                <p className="text-slate-300 text-sm font-medium mb-1">Open / Urgent</p>
-                <p className="text-3xl font-bold text-yellow-400">{openCount}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
-      <main className="flex-grow container mx-auto px-4 py-8 pb-12">
+      <main className="flex-grow container mx-auto px-4 pt-8 pb-12">
 
         {/* Controls */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">

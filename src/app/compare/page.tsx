@@ -235,27 +235,9 @@ function ComparePageInner() {
 
   return (
     <>
-      {/* Hero Section */}
-      <div className="bg-[#1e293b] text-white pb-24 pt-12 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-                <span className="text-red-400">⚖️</span>
-                Compare Donors
-              </h1>
-              <p className="text-slate-300 text-lg max-w-xl">
-                Review side-by-side and select the best match.
-              </p>
-            </div>
-            <Link href="/search" className="inline-flex items-center justify-center px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold rounded-lg transition-colors">
-              ← Back to Search
-            </Link>
-          </div>
-        </div>
-      </div>
+      
 
-      <main className="flex-grow container mx-auto px-4 py-8 pb-12">
+      <main className="flex-grow container mx-auto px-4 pt-8 pb-12">
         <div className="max-w-5xl mx-auto -mt-20">
 
 

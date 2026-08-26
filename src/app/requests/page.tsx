@@ -87,20 +87,9 @@ export default function RequestBloodPage() {
 
   return (
     <>
-      {/* Hero */}
-      <div className="bg-[#1e293b] text-white pb-20 pt-12">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3 mb-2">
-            <Droplet size={32} className="text-red-400" />
-            <h1 className="text-4xl font-bold">Request Blood</h1>
-          </div>
-          <p className="text-slate-300 text-lg max-w-xl">
-            Fill in the details below and our verified donors in your area will be notified immediately.
-          </p>
-        </div>
-      </div>
+      
 
-      <main className="flex-grow container mx-auto px-4 py-8 pb-16 max-w-3xl">
+      <main className="flex-grow container mx-auto px-4 pt-8 pb-16 max-w-3xl">
 
         {/* Success State */}
         {submitted && (

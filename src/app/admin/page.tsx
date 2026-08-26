@@ -86,43 +86,9 @@ export default function AdminDashboard() {
 
   return (
     <>
-      {/* Hero Section */}
-      <div className="bg-[#1e293b] text-white pb-24 pt-12 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-                <ShieldCheck size={36} className="text-blue-400" />
-                Admin Dashboard
-              </h1>
-              <p className="text-slate-300 text-lg max-w-xl">
-                Manage your donor network, verify identities, and ensure the safety of the blood donation community.
-              </p>
-            </div>
-            
-            {/* Stats Cards */}
-            <div className="flex gap-4">
-              <div className="bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10 min-w-[120px]">
-                <p className="text-slate-300 text-sm font-medium mb-1">Total Donors</p>
-                <p className="text-3xl font-bold">{donors.length}</p>
-              </div>
-              <div className="bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10 min-w-[120px]">
-                <p className="text-slate-300 text-sm font-medium mb-1">Unverified</p>
-                <p className="text-3xl font-bold">{unverifiedCount}</p>
-              </div>
-              <Link
-                href="/admin/requests"
-                className="bg-white/5 hover:bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 min-w-[120px] transition-colors flex flex-col justify-between"
-              >
-                <p className="text-slate-300 text-sm font-medium mb-1 flex items-center gap-1"><ClipboardList size={14} /> Requests</p>
-                <p className="text-sm font-semibold text-blue-300">Manage →</p>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
-      <main className="flex-grow container mx-auto px-4 py-8 pb-12">
+      <main className="flex-grow container mx-auto px-4 pt-8 pb-12">
         
         {/* Controls Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">

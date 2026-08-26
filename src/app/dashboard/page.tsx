@@ -61,29 +61,9 @@ export default function DashboardPage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <div className="bg-[#1e293b] text-white pb-24 pt-12 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-                <span className="text-red-400">🩸</span>
-                Real-Time Feedback Dashboard
-              </h1>
-              <p className="text-slate-300 text-lg max-w-xl">
-                Live monitoring of donor feedback
-              </p>
-              {lastUpdated && (
-                <p className="text-sm text-slate-400 mt-2">
-                  Last updated: {lastUpdated.toLocaleTimeString()}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
-      <main className="flex-grow container mx-auto px-4 py-8 pb-12">
+      <main className="flex-grow container mx-auto px-4 pt-8 pb-12">
         <div className="max-w-4xl mx-auto -mt-20">
 
 
