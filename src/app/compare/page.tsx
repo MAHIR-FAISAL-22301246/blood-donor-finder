@@ -72,12 +72,18 @@ function ComparePageInner() {
   }, [ids]);
 
   const handleSelect = (id: string) => {
+    setError(null);
     setSelectedId(id);
     setStep('confirm');
   };
 
   const handleConfirm = async () => {
     if (!selectedId) return;
+    const donor = donors.find((d) => d._id === selectedId);
+    if (donor && donor.isAvailable === false) {
+      setError('Not available to donate blood. Please search for another.');
+      return;
+    }
     setSaving(true);
     try {
       const res = await fetch('/api/selected-donors', {
@@ -316,7 +322,7 @@ function ComparePageInner() {
           {donors.map((donor) => (
             <div
               key={donor._id}
-              onClick={() => setSelectedId(donor._id)}
+              onClick={() => { setSelectedId(donor._id); setError(null); }}
               className={`cursor-pointer rounded-xl border p-6 transition-all ${
                 selectedId === donor._id
                   ? 'border-oxblood bg-oxblood-light shadow-md'

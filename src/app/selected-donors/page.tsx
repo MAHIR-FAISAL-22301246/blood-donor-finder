@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { ISelectedDonorDTO } from '@/types';
 
 export default function SelectedDonorsPage() {
   const [records, setRecords] = useState<ISelectedDonorDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -70,7 +72,14 @@ export default function SelectedDonorsPage() {
         ) : (
           <div className="space-y-4">
             {records.map((record) => (
-              <div key={record._id} className="bg-white rounded-xl shadow-sm border-2 border-black p-6">
+              <div
+                key={record._id}
+                role="button"
+                tabIndex={0}
+                onClick={() => router.push(`/compare?ids=${record.donor._id}`)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/compare?ids=${record.donor._id}`); }}
+                className="block bg-white rounded-xl shadow-sm border-2 border-black p-6 hover:border-red-300 hover:shadow-md transition-all cursor-pointer"
+              >
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className="text-xl font-semibold text-slate-800">{record.donor.name}</h2>
@@ -85,9 +94,9 @@ export default function SelectedDonorsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center gap-2 text-slate-600">
                     <span className="font-medium text-slate-700">Phone:</span>
-                    <a href={`tel:${record.donor.phone}`} className="text-slate-900 hover:text-oxblood underline underline-offset-2 transition-colors">
+                    <span className="text-slate-900 underline underline-offset-2">
                       {record.donor.phone}
-                    </a>
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-600">
                     <span className="font-medium text-slate-700">Location:</span>

@@ -68,6 +68,7 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [pendingApply, setPendingApply] = useState<ISavedSearchDTO | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [savedSearches, setSavedSearches] = useState<ISavedSearchDTO[]>([]);
 
@@ -106,6 +107,7 @@ export default function SearchPage() {
     setDistrict(s.district || '');
     setAvailability((s.availability as any) || '');
     setSortBy((s.sortBy as any) || 'default');
+    setPendingApply(s);
   };
 
   const deleteSavedSearch = async (id: string) => {
@@ -119,6 +121,46 @@ export default function SearchPage() {
 
   useEffect(() => {
     fetchSavedSearches();
+  }, []);
+
+  useEffect(() => {
+    if (pendingApply) {
+      setPendingApply(null);
+      handleSearch({
+        bloodGroup: pendingApply.bloodGroup || '',
+        division: pendingApply.division || '',
+        district: pendingApply.district || '',
+        availability: pendingApply.availability || '',
+        sortBy: pendingApply.sortBy || 'default',
+      });
+    }
+  }, [pendingApply]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get('bloodGroup') || params.get('division') || params.get('district') || params.get('availability');
+    if (fromUrl) {
+      const bg = params.get('bloodGroup') || '';
+      const dv = params.get('division') || '';
+      const ds = params.get('district') || '';
+      const av = params.get('availability') || '';
+      const sb = params.get('sortBy') || 'default';
+      setSelectedBloodGroup(bg);
+      setSelectedDivision(dv);
+      setDistrict(ds);
+      setAvailability(av as any);
+      setSortBy(sb as any);
+      sessionStorage.removeItem(STORAGE_KEY);
+      setPendingApply({
+        _id: '',
+        bloodGroup: bg || undefined,
+        division: dv || undefined,
+        district: ds || undefined,
+        availability: av || undefined,
+        sortBy: sb,
+        searchedAt: '',
+      });
+    }
   }, []);
 
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -160,18 +202,24 @@ export default function SearchPage() {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
   }, [selectedBloodGroup, selectedDivision, district, availability, sortBy, donors, compatibleDonors, hasSearched]);
 
-  const handleSearch = async () => {
+  const handleSearch = async (overrides?: { bloodGroup?: string; division?: string; district?: string; availability?: string; sortBy?: string }) => {
     setLoading(true);
     setError(null);
     setDonors([]);
     setCompatibleDonors([]);
 
+    const bloodGroup = overrides?.bloodGroup !== undefined ? overrides.bloodGroup : selectedBloodGroup;
+    const division = overrides?.division !== undefined ? overrides.division : selectedDivision;
+    const dist = overrides?.district !== undefined ? overrides.district : district;
+    const avail = overrides?.availability !== undefined ? overrides.availability : availability;
+    const sort = overrides?.sortBy !== undefined ? overrides.sortBy : sortBy;
+
     try {
       const params = new URLSearchParams();
-      if (selectedBloodGroup) params.set('bloodGroup', selectedBloodGroup);
-      if (selectedDivision) params.set('division', selectedDivision);
-      if (district.trim()) params.set('district', district.trim());
-      if (availability) params.set('availability', availability);
+      if (bloodGroup) params.set('bloodGroup', bloodGroup);
+      if (division) params.set('division', division);
+      if (dist.trim()) params.set('district', dist.trim());
+      if (avail) params.set('availability', avail);
       const res = await fetch(`/api/donors?${params.toString()}`);
 
       if (!res.ok) {
@@ -190,11 +238,11 @@ export default function SearchPage() {
       setHasSearched(true);
 
       const saveBody = {
-        bloodGroup: selectedBloodGroup || undefined,
-        division: selectedDivision || undefined,
-        district: district || undefined,
-        availability: availability || undefined,
-        sortBy: sortBy || undefined,
+        bloodGroup: bloodGroup || undefined,
+        division: division || undefined,
+        district: dist || undefined,
+        availability: avail || undefined,
+        sortBy: sort || undefined,
       };
       fetch('/api/saved-searches', {
         method: 'POST',
@@ -353,7 +401,7 @@ export default function SearchPage() {
             </div>
 
             <button
-              onClick={handleSearch}
+              onClick={() => handleSearch()}
               disabled={loading}
               className="w-full sm:w-auto px-8 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
             >
