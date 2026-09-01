@@ -16,7 +16,8 @@ export default function Navbar() {
       <div className="flex gap-5 text-sm font-medium items-center">
         <NotificationBell />
         <Link href="/search" className="hover:text-red-200 transition-colors">Find Donors</Link>
-        <Link href="/requests" className="hover:text-red-200 transition-colors">Requests</Link>
+        <Link href="/requests" className="hover:text-red-200 transition-colors">Request Blood</Link>
+        <Link href="/requests/board" className="hover:text-red-200 transition-colors">Urgent Requests</Link>
         <Link href="/search-analytics" className="hover:text-red-200 transition-colors">Analytics</Link>
         <Link href="/saved-searches" className="hover:text-red-200 transition-colors">Saved Searches</Link>
         <Link href="/selected-donors" className="hover:text-red-200 transition-colors">Selected Donors</Link>

@@ -35,7 +35,10 @@ const initialForm: FormData = {
   description: '',
 };
 
+import { useAuth } from '@/context/AuthContext';
+
 export default function RequestBloodPage() {
+  const { user } = useAuth();
   const [form, setForm] = useState<FormData>(initialForm);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -56,6 +59,7 @@ export default function RequestBloodPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          requesterId: user?.id, // Sent to backend
           patientName: form.patientName,
           bloodGroup: form.bloodGroup,
           unitsNeeded: Number(form.unitsNeeded),

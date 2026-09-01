@@ -43,7 +43,7 @@ export async function createBloodRequest(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { patientName, bloodGroup, unitsNeeded, hospital, location, requiredDate, contactPhone } = body;
+    const { requesterId, patientName, bloodGroup, unitsNeeded, hospital, location, requiredDate, contactPhone } = body;
 
     if (!patientName || !bloodGroup || !unitsNeeded || !hospital || !location?.division || !location?.district || !requiredDate || !contactPhone) {
       return NextResponse.json(
@@ -52,10 +52,11 @@ export async function createBloodRequest(req: NextRequest) {
       );
     }
 
-    // Placeholder requester until auth is implemented
-    const PLACEHOLDER_REQUESTER_ID = '000000000000000000000000';
+    // Use provided requesterId, or fallback to placeholder for testing without auth
+    const requester = requesterId || '000000000000000000000000';
+    
     const request = await BloodRequest.create({
-      requester: PLACEHOLDER_REQUESTER_ID,
+      requester: requester,
       patientName,
       bloodGroup,
       unitsNeeded: Number(unitsNeeded),
@@ -137,6 +138,21 @@ export async function commitToRequest(requestId: string, donorId: string) {
     if (!request) {
       return NextResponse.json({ success: false, message: 'Request not found' }, { status: 404 });
     }
+
+    // Notify the requester that a donor has committed
+    try {
+      const donor = await User.findById(donorId, 'name bloodGroup');
+      if (donor && request.requester) {
+        await Notification.create({
+          recipient: request.requester,
+          message: `${donor.name} (${donor.bloodGroup}) has committed to donate for ${request.patientName} at ${request.hospital}.`,
+          relatedRequest: request._id,
+        });
+      }
+    } catch (notifErr) {
+      console.error('Failed to send commit notification:', notifErr);
+    }
+
     return NextResponse.json({ success: true, data: request }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Commit failed', error }, { status: 500 });
@@ -164,6 +180,17 @@ export async function confirmDonation(requestId: string, donorId: string) {
     if (request.confirmedDonors.length >= request.unitsNeeded) {
       request.status = 'fulfilled';
       await request.save();
+    }
+
+    // Notify the donor that their donation was confirmed
+    try {
+      await Notification.create({
+        recipient: donorId,
+        message: `Your donation for ${request.patientName} at ${request.hospital} has been confirmed. Thank you for saving a life! 🩸`,
+        relatedRequest: request._id,
+      });
+    } catch (notifErr) {
+      console.error('Failed to send confirmation notification:', notifErr);
     }
 
     return NextResponse.json({ success: true, data: request }, { status: 200 });

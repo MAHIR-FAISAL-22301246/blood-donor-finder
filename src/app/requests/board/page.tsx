@@ -7,13 +7,13 @@ import { Toaster, toast } from 'react-hot-toast';
 import { HeartHandshake, MapPin, Droplet, Clock, CheckCircle } from 'lucide-react';
 import { IBloodRequestDTO } from '@/types';
 
+import { useAuth } from '@/context/AuthContext';
+
 export default function RequestBoardPage() {
+  const { user } = useAuth();
   const [requests, setRequests] = useState<IBloodRequestDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [committing, setCommitting] = useState<string | null>(null);
-
-  // MOCK DONOR ID for testing until authentication is added
-  const MOCK_DONOR_ID = '000000000000000000000001';
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -37,18 +37,22 @@ export default function RequestBoardPage() {
   }, []);
 
   const handleCommit = async (requestId: string) => {
+    if (!user) {
+      toast.error('You must be logged in to commit to a request.');
+      return;
+    }
     setCommitting(requestId);
     try {
       const res = await fetch(`/api/requests/${requestId}/commit`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ donorId: MOCK_DONOR_ID }),
+        body: JSON.stringify({ donorId: user.id }),
       });
       const data = await res.json();
       if (data.success) {
         toast.success('Successfully committed to donate!');
         setRequests(prev => prev.map(req => 
-          req._id === requestId ? { ...req, committedDonors: [...(req.committedDonors || []), MOCK_DONOR_ID] } : req
+          req._id === requestId ? { ...req, committedDonors: [...(req.committedDonors || []), user.id] } : req
         ));
       } else {
         toast.error(data.message || 'Failed to commit');
