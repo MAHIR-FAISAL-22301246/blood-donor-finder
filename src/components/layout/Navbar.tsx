@@ -25,7 +25,10 @@ export default function Navbar() {
 
         {/* Admin link — only for admins */}
         {user?.role === 'admin' && (
-          <Link href="/admin" className="hover:text-red-200 transition-colors">Admin</Link>
+          <>
+            <Link href="/admin" className="hover:text-red-200 transition-colors">Admin</Link>
+            <Link href="/admin/requests" className="hover:text-red-200 transition-colors">Admin Requests</Link>
+          </>
         )}
 
         {loading ? (

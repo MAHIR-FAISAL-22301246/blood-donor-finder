@@ -83,7 +83,7 @@ export default function RequestBoardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {requests.map(request => {
               const hasCommitted = request.committedDonors?.some(
-                d => (typeof d === 'string' ? d : d._id) === MOCK_DONOR_ID
+                d => (typeof d === 'string' ? d : d._id) === user?.id
               );
 
               return (
