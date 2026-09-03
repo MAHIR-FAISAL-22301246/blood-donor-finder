@@ -35,9 +35,9 @@ export default function Navbar() {
           <span className="w-20 h-6 bg-red-500 animate-pulse rounded" />
         ) : user ? (
           <div className="flex items-center gap-3">
-            <span className="bg-white/20 rounded-full px-3 py-1 text-xs font-semibold">
+            <Link href="/profile" className="bg-white/20 hover:bg-white/30 rounded-full px-3 py-1 text-xs font-semibold transition-colors">
               👤 {user.name.split(' ')[0]}
-            </span>
+            </Link>
             <button
               onClick={logout}
               className="bg-white text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-50 transition"
