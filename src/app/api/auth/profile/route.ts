@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { getSessionFromCookies } from '@/lib/auth';
+import { decrypt } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,5 +18,11 @@ export async function GET() {
     return NextResponse.json({ success: false, message: 'User not found.' }, { status: 404 });
   }
 
-  return NextResponse.json({ success: true, data: user });
+  // Decrypt phone number before returning to the client
+  const userObj = user.toObject();
+  if (userObj.phone) {
+    userObj.phone = decrypt(userObj.phone);
+  }
+
+  return NextResponse.json({ success: true, data: userObj });
 }

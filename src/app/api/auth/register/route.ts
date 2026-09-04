@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { hashPassword, signToken, setAuthCookie } from '@/lib/auth';
+import { encrypt } from '@/lib/security';
 
 export async function POST(req: Request) {
   try {
@@ -25,12 +26,15 @@ export async function POST(req: Request) {
 
     const hashedPassword = await hashPassword(password);
 
+    // Encrypt the phone number before storing it in the database
+    const encryptedPhone = encrypt(phone);
+
     const user = await User.create({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password: hashedPassword,
       bloodGroup,
-      phone,
+      phone: encryptedPhone,   // stored encrypted
       location: { division, district, area: area || '' },
       role: role === 'donor' ? 'donor' : 'user',
       isAvailable: role === 'donor',
