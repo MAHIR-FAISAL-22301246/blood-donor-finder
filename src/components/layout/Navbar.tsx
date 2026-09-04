@@ -28,6 +28,7 @@ export default function Navbar() {
           <>
             <Link href="/admin" className="hover:text-red-200 transition-colors">Admin</Link>
             <Link href="/admin/requests" className="hover:text-red-200 transition-colors">Admin Requests</Link>
+            <Link href="/admin/inactive" className="hover:text-red-200 transition-colors">Inactive Accounts</Link>
           </>
         )}
 
