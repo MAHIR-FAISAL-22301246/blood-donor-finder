@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import { Toaster, toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { User, MapPin, Droplet, Phone, Mail, Shield, Clock, ToggleLeft, ToggleRight } from 'lucide-react';
 
 interface UserProfile {
@@ -82,21 +80,13 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <>
-        <Navbar />
-        <main className="flex-grow container mx-auto px-4 pt-24 pb-16 text-center">
-          <h1 className="text-2xl font-bold text-gray-700">Please log in to view your profile.</h1>
-        </main>
-        <Footer />
-      </>
+      <main className="flex-grow container mx-auto px-4 pt-24 pb-16 text-center">
+        <h1 className="text-2xl font-bold text-gray-700">Please log in to view your profile.</h1>
+      </main>
     );
   }
 
   return (
-    <>
-      <Toaster position="top-center" />
-      <Navbar />
-
       <main className="flex-grow container mx-auto px-4 pt-8 pb-16 max-w-3xl">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
           <User className="text-red-500" size={32} />
@@ -279,8 +269,5 @@ export default function ProfilePage() {
           <div className="text-center text-gray-500 py-12">Could not load profile.</div>
         )}
       </main>
-
-      <Footer />
-    </>
   );
 }
