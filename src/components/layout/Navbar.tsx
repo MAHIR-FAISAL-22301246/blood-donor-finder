@@ -18,6 +18,7 @@ export default function Navbar() {
         <Link href="/search" className="hover:text-red-200 transition-colors">Find Donors</Link>
         <Link href="/requests" className="hover:text-red-200 transition-colors">Request Blood</Link>
         <Link href="/requests/board" className="hover:text-red-200 transition-colors">Urgent Requests</Link>
+        <Link href="/patient-details" className="hover:text-red-200 transition-colors">Patient Details</Link>
         <Link href="/search-analytics" className="hover:text-red-200 transition-colors">Analytics</Link>
         <Link href="/saved-searches" className="hover:text-red-200 transition-colors">Saved Searches</Link>
         <Link href="/selected-donors" className="hover:text-red-200 transition-colors">Selected Donors</Link>
