@@ -22,6 +22,7 @@ export default function Navbar() {
         <Link href="/saved-searches" className="hover:text-red-200 transition-colors">Saved Searches</Link>
         <Link href="/selected-donors" className="hover:text-red-200 transition-colors">Selected Donors</Link>
         <Link href="/feedback" className="hover:text-red-200 transition-colors">Feedback</Link>
+        <Link href="/dashboard" className="hover:text-red-200 transition-colors">Dashboard</Link>
 
         {/* Admin link — only for admins */}
         {user?.role === 'admin' && (
