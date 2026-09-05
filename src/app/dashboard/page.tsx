@@ -64,7 +64,7 @@ export default function DashboardPage() {
       
 
       <main className="flex-grow container mx-auto px-4 pt-8 pb-12">
-        <div className="max-w-4xl mx-auto -mt-20">
+        <div className="max-w-4xl mx-auto">
 
 
       {/* Summary Cards */}
