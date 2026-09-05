@@ -5,6 +5,7 @@ import User from '@/models/User';
 import Notification from '@/models/Notification';
 import dbConnect from '@/lib/db';
 import { RequestStatus } from '@/types';
+import { decrypt } from '@/lib/security';
 
 // GET /api/requests — Get all blood requests (admin: supports all statuses)
 export async function getBloodRequests(req: NextRequest) {
@@ -27,7 +28,26 @@ export async function getBloodRequests(req: NextRequest) {
       .populate('committedDonors', 'name email phone bloodGroup location isVerified')
       .populate('confirmedDonors', 'name email phone bloodGroup location isVerified')
       .sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, data: requests }, { status: 200 });
+      
+    // Decrypt populated phone numbers
+    const decryptedRequests = requests.map(req => {
+      const reqObj = req.toObject();
+      if (reqObj.committedDonors) {
+        reqObj.committedDonors = reqObj.committedDonors.map((donor: any) => {
+          if (donor.phone) donor.phone = decrypt(donor.phone);
+          return donor;
+        });
+      }
+      if (reqObj.confirmedDonors) {
+        reqObj.confirmedDonors = reqObj.confirmedDonors.map((donor: any) => {
+          if (donor.phone) donor.phone = decrypt(donor.phone);
+          return donor;
+        });
+      }
+      return reqObj;
+    });
+      
+    return NextResponse.json({ success: true, data: decryptedRequests }, { status: 200 });
   } catch (error) {
     console.error('getBloodRequests ERROR:', error);
     return NextResponse.json(
@@ -153,7 +173,15 @@ export async function commitToRequest(requestId: string, donorId: string) {
       console.error('Failed to send commit notification:', notifErr);
     }
 
-    return NextResponse.json({ success: true, data: request }, { status: 200 });
+    const reqObj = request.toObject();
+    if (reqObj.committedDonors) {
+      reqObj.committedDonors = reqObj.committedDonors.map((donor: any) => {
+        if (donor.phone) donor.phone = decrypt(donor.phone);
+        return donor;
+      });
+    }
+
+    return NextResponse.json({ success: true, data: reqObj }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Commit failed', error }, { status: 500 });
   }
@@ -193,7 +221,21 @@ export async function confirmDonation(requestId: string, donorId: string) {
       console.error('Failed to send confirmation notification:', notifErr);
     }
 
-    return NextResponse.json({ success: true, data: request }, { status: 200 });
+    const reqObj = request.toObject();
+    if (reqObj.confirmedDonors) {
+      reqObj.confirmedDonors = reqObj.confirmedDonors.map((donor: any) => {
+        if (donor.phone) donor.phone = decrypt(donor.phone);
+        return donor;
+      });
+    }
+    if (reqObj.committedDonors) {
+      reqObj.committedDonors = reqObj.committedDonors.map((donor: any) => {
+        if (donor.phone) donor.phone = decrypt(donor.phone);
+        return donor;
+      });
+    }
+
+    return NextResponse.json({ success: true, data: reqObj }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Confirmation failed', error }, { status: 500 });
   }
